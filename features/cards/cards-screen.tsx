@@ -8,6 +8,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/shared/legacy/theme'
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { Screen } from '@/shared/ui/screen';
 import { AppText } from '@/shared/ui/app-text';
+import { EntrySeparator } from '@/shared/ui/entry-separator';
 
 const InkColor = '#111111';
 const TimecodeColors = ['#2FDD6C', '#65D7F2', '#FF9F45', '#9B7CFF'] as const;
@@ -77,17 +78,11 @@ export function CardsScreen() {
 
           return (
             <View key={group.generation.id} style={styles.memoGroup}>
-              <View style={styles.memoSeparator}>
-                <View style={styles.memoSourcePill}>
-                  <AppText style={styles.memoSourceText}>{sourceLabel}</AppText>
-                </View>
-                <View style={styles.memoRule} />
-                <View style={styles.memoDatePill}>
-                  <AppText style={styles.memoDateText} selectable>
-                    {formatDate(group.generation.createdAt)}
-                  </AppText>
-                </View>
-              </View>
+              <EntrySeparator
+                dateLabel={formatDate(group.generation.createdAt)}
+                sourceLabel={sourceLabel}
+                sourceTone={group.entry.source}
+              />
 
               <View style={styles.transcriptList}>
                 {group.cards.map((card, index) => {
@@ -195,43 +190,6 @@ const styles = StyleSheet.create({
   },
   memoGroup: {
     gap: Spacing.three,
-  },
-  memoSeparator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  memoSourcePill: {
-    borderWidth: 2,
-    borderColor: InkColor,
-    backgroundColor: '#FFF6E7',
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-  },
-  memoDatePill: {
-    borderWidth: 2,
-    borderColor: InkColor,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-  },
-  memoSourceText: {
-    color: InkColor,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: 900,
-  },
-  memoDateText: {
-    color: InkColor,
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: 800,
-    fontVariant: ['tabular-nums'],
-  },
-  memoRule: {
-    flex: 1,
-    height: 3,
-    backgroundColor: InkColor,
-    borderRadius: 999,
   },
   transcriptList: {
     gap: Spacing.three,

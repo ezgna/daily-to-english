@@ -15,14 +15,14 @@ import { Fonts, Spacing } from '@/shared/legacy/theme';
 import { ThemedText } from '@/shared/legacy/themed-text';
 
 const Colors = {
-  accent: '#168A73',
-  accentDark: '#11705F',
+  accent: '#2FDD6C',
+  accentDark: '#168A73',
   accentSoft: '#DDF3E8',
-  accentMuted: '#8CD6BD',
+  accentMuted: '#A6D8C6',
   disabled: '#E7ECEF',
-  progress: '#168A73',
-  rule: '#C5E7DA',
-  surface: '#FFFFFF',
+  ink: '#111111',
+  progress: '#2FDD6C',
+  surface: '#FFF6E7',
 } as const;
 
 export function DiaryWaveform({
@@ -223,7 +223,7 @@ export function DiaryWaveform({
             web: isPlaying ? 'pause' : 'play_arrow',
           }}
           size={17}
-          tintColor={isPlayable ? Colors.accentDark : '#7A8790'}
+          tintColor={isPlayable ? Colors.ink : '#7A8790'}
           fallback={
             <ThemedText style={[styles.playIcon, !isPlayable && styles.playIconDisabled]}>
               {isPlaying ? 'Ⅱ' : '▶'}
@@ -232,7 +232,11 @@ export function DiaryWaveform({
         />
       </Pressable>
       {waveformBars}
-      {timeLabel ? <ThemedText style={styles.time}>{timeLabel}</ThemedText> : null}
+      {timeLabel ? (
+        <ThemedText maxFontSizeMultiplier={1.4} numberOfLines={1} style={styles.time}>
+          {timeLabel}
+        </ThemedText>
+      ) : null}
     </View>
   );
 }
@@ -260,8 +264,8 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     borderRadius: 12,
     borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: Colors.rule,
+    borderWidth: 2,
+    borderColor: Colors.ink,
     backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
@@ -273,15 +277,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 999,
     borderWidth: 3,
-    borderColor: Colors.accent,
-    backgroundColor: '#FFFFFF',
+    borderColor: Colors.ink,
+    backgroundColor: Colors.accent,
   },
   playButtonDisabled: {
     backgroundColor: Colors.disabled,
-    borderColor: Colors.accentMuted,
+    borderColor: 'rgba(17, 17, 17, 0.4)',
   },
   playIcon: {
-    color: Colors.accentDark,
+    color: Colors.ink,
     fontSize: 16,
     lineHeight: 20,
     fontWeight: 900,
@@ -309,7 +313,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accentMuted,
   },
   time: {
-    width: 50,
+    minWidth: 50,
     flexShrink: 0,
     borderRadius: 8,
     backgroundColor: Colors.accentSoft,
@@ -319,6 +323,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: 900,
     fontVariant: ['tabular-nums'],
+    paddingHorizontal: Spacing.one,
     textAlign: 'center',
   },
 });
