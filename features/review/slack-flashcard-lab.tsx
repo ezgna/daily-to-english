@@ -23,6 +23,7 @@ import type { Card, ReviewRating } from '@just-speak-it/contract';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { MaxContentWidth, Spacing } from '@/shared/legacy/theme';
 import { ThemedText } from '@/shared/legacy/themed-text';
+import { FoundationSurface } from '@/shared/legacy/ui/foundation-surface';
 
 type SlackFlashcardLabProps = {
   cards: Card[];
@@ -30,8 +31,8 @@ type SlackFlashcardLabProps = {
   footerAccessory?: ReactNode;
   headerAccessory?: ReactNode;
   onDueCountChange?: (dueCount: number) => void;
-  onReview: (cardId: string, rating: ReviewRating) => Promise<void> | void;
-  onUndo?: (cardId: string) => Promise<void> | void;
+  onReview: (cardId: string, rating: ReviewRating) => string;
+  onUndo?: (cardId: string, reviewEventId: string) => void;
 };
 
 type PracticeCard = {
@@ -50,6 +51,7 @@ type PracticeCard = {
 type UndoEntry = {
   card: PracticeCard;
   cardId: string;
+  reviewEventId: string;
 };
 
 const CancelReturnSpringConfig = {
@@ -247,15 +249,6 @@ export function SlackFlashcardLab({
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
   }, []);
 
-  const restoreAfterReviewError = useCallback((card: PracticeCard) => {
-    setDismissedCardIds((currentIds) => {
-      const nextIds = new Set(currentIds);
-      nextIds.delete(card.id);
-      return nextIds;
-    });
-    setFrontPinnedCard(card);
-  }, []);
-
   const completeSwipe = useCallback(
     (status: Card['srsStatus']) => {
       if (!activeCard || disabled) {
@@ -265,19 +258,26 @@ export function SlackFlashcardLab({
 
       const rating: ReviewRating = status === 'known' ? 'good' : 'again';
       const nextVisualQueue = displayQueue.filter((card) => card.id !== activeCard.id).slice(0, VisibleCardCount);
+      let reviewEventId: string;
+
+      try {
+        reviewEventId = onReview(activeCard.id, rating);
+      } catch {
+        resetCardPosition();
+        return;
+      }
 
       setVisualQueue(nextVisualQueue);
       setPendingVisualQueueRelease((currentValue) => currentValue + 1);
-      setUndoStack((currentStack) => [...currentStack.slice(-4), { cardId: activeCard.id, card: activeCard }]);
+      setUndoStack((currentStack) => [
+        ...currentStack.slice(-4),
+        { cardId: activeCard.id, card: activeCard, reviewEventId },
+      ]);
       setDismissedCardIds((currentIds) => new Set(currentIds).add(activeCard.id));
       setFrontPinnedCard(null);
       setIsAnswerVisible(false);
-
-      Promise.resolve(onReview(activeCard.id, rating)).catch(() => {
-        restoreAfterReviewError(activeCard);
-      });
     },
-    [activeCard, disabled, displayQueue, onReview, resetCardPosition, restoreAfterReviewError]
+    [activeCard, disabled, displayQueue, onReview, resetCardPosition]
   );
 
   const handleUndoPress = useCallback(() => {
@@ -288,6 +288,12 @@ export function SlackFlashcardLab({
     }
 
     const restoredCard = cardsById.get(undoEntry.cardId) ?? undoEntry.card;
+
+    try {
+      onUndo?.(undoEntry.cardId, undoEntry.reviewEventId);
+    } catch {
+      return;
+    }
 
     resetCardPosition();
     setVisualQueue(null);
@@ -300,8 +306,6 @@ export function SlackFlashcardLab({
     setFrontPinnedCard(restoredCard);
     setUndoStack((currentStack) => currentStack.slice(0, -1));
     setIsAnswerVisible(false);
-
-    Promise.resolve(onUndo?.(undoEntry.cardId)).catch(() => undefined);
   }, [cardsById, disabled, onUndo, resetCardPosition, undoStack]);
 
   const animateCardDecision = useCallback(
@@ -711,18 +715,21 @@ function LabHeader({
 }) {
   return (
     <View style={styles.header}>
-      <Pressable
+      <FoundationSurface
         accessibilityLabel="直前の判定を取り消す"
         accessibilityRole="button"
+        accessibilityState={{ disabled: undoDisabled }}
         disabled={undoDisabled}
+        foundationDepth={6}
+        foundationDirection="diagonal"
+        haptic="selection"
+        hitSlop={6}
         onPress={onUndo}
-        style={({ pressed }) => [
-          styles.headerIconButton,
-          { opacity: undoDisabled ? 0.36 : pressed ? 0.7 : 1 },
-        ]}
+        containerStyle={{ opacity: undoDisabled ? 0.36 : 1 }}
+        style={styles.headerIconButton}
       >
         <SymbolView name="arrow.uturn.backward" size={22} tintColor={LabColors.bodyText} />
-      </Pressable>
+      </FoundationSurface>
 
       <View pointerEvents="none" style={styles.headerCenter}>
         <ThemedText style={styles.leftCount} selectable>
@@ -935,14 +942,19 @@ function DecisionButton({
   const isRead = tone === 'read';
 
   return (
-    <Pressable
+    <FoundationSurface
+      accessibilityLabel={label}
       accessibilityRole="button"
+      accessibilityState={{ disabled: Boolean(disabled) }}
+      containerStyle={[styles.decisionButtonContainer, { opacity: disabled ? 0.45 : 1 }]}
       disabled={disabled}
+      foundationDepth={6}
+      foundationDirection="diagonal"
+      haptic="selection"
       onPress={onPress}
-      style={({ pressed }) => [
+      style={[
         styles.decisionButton,
         isRead ? styles.readButton : styles.keepButton,
-        { opacity: disabled ? 0.45 : pressed ? 0.76 : 1 },
       ]}
     >
       <SymbolView
@@ -951,7 +963,7 @@ function DecisionButton({
         tintColor={LabColors.bodyText}
       />
       <ThemedText style={styles.decisionButtonText}>{label}</ThemedText>
-    </Pressable>
+    </FoundationSurface>
   );
 }
 
@@ -1360,8 +1372,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.three,
   },
-  decisionButton: {
+  decisionButtonContainer: {
     flex: 1,
+  },
+  decisionButton: {
+    width: '100%',
     minHeight: 58,
     flexDirection: 'row',
     alignItems: 'center',

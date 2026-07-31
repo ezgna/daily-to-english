@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useReducer, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { GenerationBundle } from '@just-speak-it/contract';
@@ -14,7 +14,7 @@ import { useSettings } from '@/features/settings/settings-store';
 import { createGeneration, discardGeneration, formatApiError, transcribeAudio, translateGeneration } from '@/shared/api/client';
 import { qk } from '@/shared/api/query-keys';
 import { useLatestPendingGeneration, useReviewQueue } from '@/shared/api/read-models';
-import { MaxContentWidth, Spacing, TopTabInset } from '@/shared/legacy/theme';
+import { MaxContentWidth, Spacing } from '@/shared/legacy/theme';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { GlideButton } from '@/shared/legacy/ui/glide-button';
 import { AppText } from '@/shared/ui/app-text';
@@ -141,6 +141,11 @@ export function CaptureScreen() {
     latestPending.data && latestPending.data.generation.status === 'split' ? latestPending.data : null;
   const showModeSwitch = state.phase === 'idle';
   const shouldShowBottomPrimaryAction = state.phase !== 'draftReady' && state.phase !== 'completed';
+  const isReviewDeckVisible =
+    state.phase !== 'draftReady' &&
+    state.phase !== 'completed' &&
+    mode !== 'write' &&
+    Boolean(reviewQueue.data?.length);
 
   function handlePrimaryActionPress() {
     if (mode === 'write') {
@@ -157,6 +162,17 @@ export function CaptureScreen() {
       void startRecording();
     }
   }
+
+  const modeSwitchButton = showModeSwitch ? (
+    <GlideButton
+      label={mode === 'write' ? '話す' : '書く'}
+      accessibilityLabel={mode === 'write' ? '話すモードに戻る' : '書くモードに切り替える'}
+      tone={mode === 'write' ? 'mint' : 'cream'}
+      size="compact"
+      fullWidth={false}
+      onPress={() => dispatch({ type: 'SWITCH_MODE', mode: mode === 'write' ? 'voice' : 'write' })}
+    />
+  ) : null;
 
   const content = (
     <View style={styles.contentArea}>
@@ -189,7 +205,11 @@ export function CaptureScreen() {
         ) : state.phase === 'completed' ? (
           <DraftCardList cards={state.result.cards} />
         ) : mode === 'write' ? (
-          <View style={styles.inputDismissArea}>
+          <Pressable
+            accessible={false}
+            style={styles.inputDismissArea}
+            onPress={Keyboard.dismiss}
+          >
             <GlideTextInput
               value={text}
               tone="cream"
@@ -211,9 +231,9 @@ export function CaptureScreen() {
               ]}
               onChangeText={setText}
             />
-          </View>
+          </Pressable>
         ) : reviewQueue.data?.length ? (
-          <ReviewDeck cards={reviewQueue.data} />
+          <ReviewDeck cards={reviewQueue.data} headerAccessory={modeSwitchButton} />
         ) : (
           <StarterCard
             isLoading={reviewQueue.isLoading}
@@ -239,37 +259,16 @@ export function CaptureScreen() {
         styles.screen,
         {
           backgroundColor: colors.background,
-          paddingTop: safeAreaInsets.top + TopTabInset + Spacing.two,
+          paddingTop: safeAreaInsets.top,
           paddingBottom: safeAreaInsets.bottom + Spacing.three,
           paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
           paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
         },
       ]}
     >
-      {showModeSwitch ? (
-        <View
-          pointerEvents="box-none"
-          style={[
-            styles.modeActionLayer,
-            {
-              top: safeAreaInsets.top + TopTabInset + Spacing.three,
-              right: Math.max(safeAreaInsets.right, Spacing.three),
-            },
-          ]}
-        >
-          <GlideButton
-            label={mode === 'write' ? '話す' : '書く'}
-            accessibilityLabel={mode === 'write' ? '話すモードに戻る' : '書くモードに切り替える'}
-            icon={
-              mode === 'write'
-                ? { ios: 'mic.fill', android: 'mic', web: 'mic' }
-                : { ios: 'square.and.pencil', android: 'edit', web: 'edit' }
-            }
-            tone={mode === 'write' ? 'mint' : 'cream'}
-            size="compact"
-            fullWidth={false}
-            onPress={() => dispatch({ type: 'SWITCH_MODE', mode: mode === 'write' ? 'voice' : 'write' })}
-          />
+      {showModeSwitch && !isReviewDeckVisible ? (
+        <View style={styles.modeActionRow}>
+          {modeSwitchButton}
         </View>
       ) : null}
 
@@ -379,9 +378,6 @@ function StarterCard({
           },
         ]}
       >
-        <View style={[styles.starterBadge, { backgroundColor: colors.tealSoft }]}>
-          <AppText style={[styles.starterBadgeText, { color: colors.teal }]}>Speak it</AppText>
-        </View>
         <AppText style={[styles.starterTitle, { color: colors.text }]} selectable>
           {title}
         </AppText>
@@ -405,7 +401,7 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     justifyContent: 'center',
     gap: Spacing.three,
-    paddingVertical: Spacing.one,
+    paddingBottom: Spacing.one,
   },
   draftStack: {
     flex: 1,
@@ -430,17 +426,6 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
     gap: Spacing.three,
   },
-  starterBadge: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-  },
-  starterBadgeText: {
-    fontSize: 13,
-    lineHeight: 17,
-    fontWeight: 900,
-  },
   starterTitle: {
     fontSize: 28,
     lineHeight: 36,
@@ -451,10 +436,13 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     fontWeight: 700,
   },
-  modeActionLayer: {
-    position: 'absolute',
-    zIndex: 1,
-    alignItems: 'flex-end',
+  modeActionRow: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    minHeight: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   draftInputFrame: {
     minHeight: 128,

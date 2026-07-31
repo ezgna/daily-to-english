@@ -19,7 +19,6 @@ const Colors = {
   ink: '#111111',
   mint: '#2FDD6C',
   paper: '#FFF6E7',
-  sky: '#65D7F2',
 } as const;
 
 export function LocalRecordingSettings() {
@@ -53,17 +52,12 @@ export function LocalRecordingSettings() {
 
   return (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <View style={styles.sectionKicker}>
-          <ThemedText style={styles.sectionKickerText}>Voice</ThemedText>
-        </View>
-        <View style={styles.titleRow}>
-          <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
-            録音保存
-          </ThemedText>
-          <View style={styles.currentBadge}>
-            <ThemedText style={styles.currentBadgeText}>{formatRecordingStats(stats)}</ThemedText>
-          </View>
+      <View style={styles.titleRow}>
+        <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
+          録音保存
+        </ThemedText>
+        <View style={styles.currentBadge}>
+          <ThemedText style={styles.currentBadgeText}>{formatRecordingStats(stats)}</ThemedText>
         </View>
       </View>
 
@@ -125,23 +119,13 @@ function formatBytes(value: number) {
 }
 
 const styles = StyleSheet.create({
-  section: { gap: Spacing.three },
-  sectionHeader: { gap: Spacing.two },
-  sectionKicker: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 3,
-    borderColor: Colors.ink,
-    backgroundColor: Colors.sky,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  sectionKickerText: {
-    color: Colors.ink,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: 900,
-    textTransform: 'uppercase',
+  section: {
+    gap: Spacing.three,
+    borderLeftWidth: 7,
+    borderLeftColor: Colors.mint,
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
+    paddingLeft: Spacing.three,
   },
   titleRow: {
     alignItems: 'center',

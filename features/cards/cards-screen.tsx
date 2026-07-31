@@ -1,9 +1,10 @@
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getLocalRecordingUriForEntry } from '@/features/recordings/recording-store';
 import { RecordingPlayButton } from '@/features/recordings/recording-play-button';
 import { useCardGroups } from '@/shared/api/read-models';
-import { Spacing } from '@/shared/legacy/theme';
+import { BottomTabInset, MaxContentWidth, Spacing } from '@/shared/legacy/theme';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { Screen } from '@/shared/ui/screen';
 import { AppText } from '@/shared/ui/app-text';
@@ -14,11 +15,56 @@ const TimecodeColors = ['#2FDD6C', '#65D7F2', '#FF9F45', '#9B7CFF'] as const;
 export function CardsScreen() {
   const colors = useDailyPalette();
   const groups = useCardGroups();
+  const safeAreaInsets = useSafeAreaInsets();
+
+  if (groups.data?.length === 0) {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.background }]}>
+        <View
+          style={[
+            styles.centerState,
+            {
+              paddingTop: safeAreaInsets.top,
+              paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+              paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
+              paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
+            },
+          ]}
+        >
+          {groups.isLoading ? (
+            <AppText muted>読み込み中</AppText>
+          ) : (
+            <View
+              style={[
+                styles.emptyStateCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.text,
+                },
+              ]}
+            >
+              <AppText style={[styles.emptyStateTitle, { color: colors.text }]}>フレーズはまだありません</AppText>
+              <AppText style={[styles.emptyStateBody, { color: colors.muted }]}>
+                ホームで話すか書くと、英語のフレーズがここに表示されます。
+              </AppText>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <Screen>
+    <Screen
+      contentInsetAdjustmentBehavior="never"
+      contentContainerStyle={{
+        paddingTop: safeAreaInsets.top,
+        paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.four,
+        paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
+        paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
+      }}
+    >
       {groups.isLoading ? <AppText muted>読み込み中</AppText> : null}
-      {groups.data?.length === 0 ? <AppText muted>まだカードはありません。</AppText> : null}
       <View style={styles.memoList}>
         {groups.data?.map((group) => {
           const recordingUri = getLocalRecordingUriForEntry(group.entry.id);
@@ -118,6 +164,32 @@ function formatTranscriptTime(value: number) {
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, alignItems: 'center' },
+  centerState: {
+    flex: 1,
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateCard: {
+    width: '100%',
+    borderRadius: 20,
+    borderCurve: 'continuous',
+    borderWidth: 4,
+    padding: Spacing.four,
+    gap: Spacing.three,
+  },
+  emptyStateTitle: {
+    fontSize: 28,
+    lineHeight: 36,
+    fontWeight: 900,
+  },
+  emptyStateBody: {
+    fontSize: 17,
+    lineHeight: 26,
+    fontWeight: 700,
+  },
   memoList: {
     gap: Spacing.four,
   },

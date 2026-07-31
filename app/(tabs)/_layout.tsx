@@ -12,35 +12,35 @@ export default function TabLayout() {
       labelStyle={{ selected: { color: colors.text } }}
       tintColor={colors.primary}
     >
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>今日</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="index" disableAutomaticContentInsets>
+        <NativeTabs.Trigger.Label>ホーム</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
+          sf={{ default: 'house', selected: 'house.fill' }}
+          md="home"
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="diary">
-        <NativeTabs.Trigger.Label>日記</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="diary" disableAutomaticContentInsets>
+        <NativeTabs.Trigger.Label>ノート</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          sf={{ default: 'book.closed', selected: 'book.closed.fill' }}
+          md="menu_book"
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="english">
-        <NativeTabs.Trigger.Label>英語</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="english" disableAutomaticContentInsets>
+        <NativeTabs.Trigger.Label>フレーズ</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          sf={{ default: 'text.bubble', selected: 'text.bubble.fill' }}
+          md="chat_bubble"
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Label>設定</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="settings" disableAutomaticContentInsets>
+        <NativeTabs.Trigger.Label>カスタム</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          sf="slider.horizontal.3"
+          md="tune"
         />
       </NativeTabs.Trigger>
     </NativeTabs>

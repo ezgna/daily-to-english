@@ -15,8 +15,9 @@ import {
 import {
   createGenerationRequestSchema,
   generationBundleSchema,
-  reviewRatingSchema,
+  reviewRequestSchema,
   translateGenerationRequestSchema,
+  undoReviewRequestSchema,
   type Card,
   type Entry,
   type Generation,
@@ -313,20 +314,42 @@ app.post('/cards/:id/reviews', async (c) => {
   const userId = c.get('userId');
   const cardId = c.req.param('id');
   const body = await c.req.json().catch(() => null);
-  const rating = reviewRatingSchema.parse(body?.rating);
+  const request = reviewRequestSchema.parse(body);
+  const existing = await fetchReviewEventByClientId(db, userId, request.eventId);
+
+  if (existing) {
+    const card = await applyStoredReviewEvent(db, userId, cardId, request.rating, existing);
+    return json(c, { card });
+  }
+
   const card = await fetchCard(db, userId, cardId);
   const now = new Date();
   const previous = toSrsState(card);
-  const next = applyReview(previous, rating, now);
+  const next = applyReview(previous, request.rating, now);
 
   const { error: insertError } = await db.from('review_events').insert({
     user_id: userId,
     card_id: cardId,
-    rating,
+    client_event_id: request.eventId,
+    rating: request.rating,
     reviewed_at: now.toISOString(),
+    result_srs_status: next.status,
+    result_review_count: next.reviewCount,
+    result_success_streak: next.successStreak,
+    result_last_reviewed_at: next.lastReviewedAt,
+    result_due_at: next.dueAt,
   });
 
   if (insertError) {
+    if (insertError.code === '23505') {
+      const duplicate = await fetchReviewEventByClientId(db, userId, request.eventId);
+
+      if (duplicate) {
+        const duplicateCard = await applyStoredReviewEvent(db, userId, cardId, request.rating, duplicate);
+        return json(c, { card: duplicateCard });
+      }
+    }
+
     throw new ApiError('db_error', insertError.message, '復習結果を保存できませんでした。', 500);
   }
 
@@ -338,16 +361,15 @@ app.post('/cards/:id/reviews/undo', async (c) => {
   const db = c.get('db');
   const userId = c.get('userId');
   const cardId = c.req.param('id');
+  const body = await c.req.json().catch(() => null);
+  const request = undoReviewRequestSchema.parse(body);
   await fetchCard(db, userId, cardId);
 
   const { data: latest, error: latestError } = await db
     .from('review_events')
-    .select('id')
+    .select('id, card_id, undone_at')
     .eq('user_id', userId)
-    .eq('card_id', cardId)
-    .is('undone_at', null)
-    .order('reviewed_at', { ascending: false })
-    .limit(1)
+    .eq('client_event_id', request.reviewEventId)
     .maybeSingle();
 
   if (latestError) {
@@ -358,14 +380,20 @@ app.post('/cards/:id/reviews/undo', async (c) => {
     throw new ApiError('not_found', '取り消せる復習履歴がありません。', '取り消せる復習履歴がありません。', 404);
   }
 
-  const { error: undoError } = await db
-    .from('review_events')
-    .update({ undone_at: new Date().toISOString() })
-    .eq('id', latest.id)
-    .eq('user_id', userId);
+  if (latest.card_id !== cardId) {
+    throw new ApiError('conflict', '復習履歴とカードが一致しません。', '取り消すカードを確認できませんでした。', 409);
+  }
 
-  if (undoError) {
-    throw new ApiError('db_error', undoError.message, 'Undoできませんでした。', 500);
+  if (!latest.undone_at) {
+    const { error: undoError } = await db
+      .from('review_events')
+      .update({ undone_at: new Date().toISOString() })
+      .eq('id', latest.id)
+      .eq('user_id', userId);
+
+    if (undoError) {
+      throw new ApiError('db_error', undoError.message, 'Undoできませんでした。', 500);
+    }
   }
 
   const { data: events, error: eventsError } = await db
@@ -698,6 +726,45 @@ async function fetchCard(db: SupabaseClient, userId: string, cardId: string): Pr
   }
 
   return toCard(data);
+}
+
+async function fetchReviewEventByClientId(db: SupabaseClient, userId: string, clientEventId: string) {
+  const { data, error } = await db
+    .from('review_events')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('client_event_id', clientEventId)
+    .maybeSingle();
+
+  if (error) {
+    throw new ApiError('db_error', error.message, '復習履歴を確認できませんでした。', 500);
+  }
+
+  return data as Row | null;
+}
+
+async function applyStoredReviewEvent(
+  db: SupabaseClient,
+  userId: string,
+  cardId: string,
+  rating: Rating,
+  event: Row
+) {
+  if (event.card_id !== cardId || event.rating !== rating) {
+    throw new ApiError('conflict', '復習IDの内容が一致しません。', '復習結果を確認できませんでした。', 409);
+  }
+
+  if (event.undone_at) {
+    return await fetchCard(db, userId, cardId);
+  }
+
+  return await updateCardSrs(db, userId, cardId, {
+    status: event.result_srs_status as SrsState['status'],
+    reviewCount: Number(event.result_review_count),
+    successStreak: Number(event.result_success_streak),
+    lastReviewedAt: event.result_last_reviewed_at as string | null,
+    dueAt: event.result_due_at as string | null,
+  });
 }
 
 async function updateCardSrs(db: SupabaseClient, userId: string, cardId: string, state: SrsState) {

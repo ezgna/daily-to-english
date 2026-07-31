@@ -18,6 +18,10 @@ export function setLocalString(key: string, value: string) {
   }
 }
 
+export function setLocalStringOrThrow(key: string, value: string) {
+  appStorage.set(key, value);
+}
+
 export function removeLocalValue(key: string) {
   try {
     appStorage.remove(key);

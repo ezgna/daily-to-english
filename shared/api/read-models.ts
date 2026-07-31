@@ -4,6 +4,7 @@ import type { Card, Entry, Generation, GenerationBundle } from '@just-speak-it/c
 
 import { ensureAnonymousSession } from '@/shared/api/auth';
 import { qk } from '@/shared/api/query-keys';
+import { getPendingReviewCardIds } from '@/shared/api/review-outbox';
 import { requireSupabaseClient } from '@/shared/supabase/client';
 
 type Row = Record<string, any>;
@@ -27,7 +28,8 @@ export function useReviewQueue() {
         throw error;
       }
 
-      return (data ?? []).map(toCard);
+      const pendingCardIds = getPendingReviewCardIds();
+      return (data ?? []).filter((row) => !pendingCardIds.has(row.id)).map(toCard);
     },
   });
 }

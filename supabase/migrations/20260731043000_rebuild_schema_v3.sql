@@ -240,3 +240,17 @@ from public.usage_events
 group by user_id, date_trunc('day', created_at), kind;
 
 grant select on public.daily_usage to authenticated;
+
+grant usage on schema public to service_role;
+
+grant all privileges on
+  public.profiles,
+  public.entries,
+  public.generations,
+  public.cards,
+  public.review_events,
+  public.usage_events
+to service_role;
+
+grant usage, select on all sequences in schema public to service_role;
+

@@ -4,20 +4,45 @@ export type BackendSessionState =
   | { status: 'not-configured'; userId: null }
   | { status: 'ready'; userId: string };
 
+let pendingSession: Promise<BackendSessionState> | null = null;
+
 export async function ensureAnonymousSession(): Promise<BackendSessionState> {
   if (!isSupabaseConfigured) {
     return { status: 'not-configured', userId: null };
   }
 
-  const supabase = requireSupabaseClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  pendingSession ??= loadOrCreateAnonymousSession().finally(() => {
+    pendingSession = null;
+  });
 
-  if (userData.user && !userError) {
-    return { status: 'ready', userId: userData.user.id };
+  return await pendingSession;
+}
+
+export async function refreshAnonymousSession(): Promise<BackendSessionState> {
+  const supabase = requireSupabaseClient();
+  const { data, error } = await supabase.auth.refreshSession();
+
+  if (error) {
+    throw error;
   }
 
-  if (userError) {
-    await supabase.auth.signOut({ scope: 'local' }).catch(() => undefined);
+  if (!data.session?.user) {
+    throw new Error('匿名セッションを更新できませんでした。');
+  }
+
+  return { status: 'ready', userId: data.session.user.id };
+}
+
+async function loadOrCreateAnonymousSession(): Promise<BackendSessionState> {
+  const supabase = requireSupabaseClient();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  if (sessionData.session?.user) {
+    return { status: 'ready', userId: sessionData.session.user.id };
   }
 
   const { data, error } = await supabase.auth.signInAnonymously();

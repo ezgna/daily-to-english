@@ -1,3 +1,4 @@
+import SegmentedControl from '@expo/ui/community/segmented-control';
 import { useCallback, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -18,7 +19,7 @@ import { DiaryWaveform } from '@/features/diary/diary-waveform';
 import { getLocalRecordingUriForEntry } from '@/features/recordings/recording-store';
 import { useDiaryEntries } from '@/shared/api/read-models';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
-import { BottomTabInset, Fonts, MaxContentWidth, Spacing, TopTabInset } from '@/shared/legacy/theme';
+import { BottomTabInset, Fonts, MaxContentWidth, Spacing } from '@/shared/legacy/theme';
 import { ThemedText } from '@/shared/legacy/themed-text';
 import { FoundationSurface } from '@/shared/legacy/ui/foundation-surface';
 import { getLocalString, setLocalString } from '@/shared/storage/local-storage';
@@ -70,13 +71,18 @@ export function DiaryScreen() {
   }, [entriesQuery]);
 
   const emptyStateInsets = {
-    paddingTop: safeAreaInsets.top + TopTabInset + Spacing.two,
+    paddingTop: safeAreaInsets.top,
     paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
     paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
   };
-  const contentInsets = {
-    paddingTop: safeAreaInsets.top + TopTabInset + Spacing.two,
+  const modeSwitchInsets = {
+    paddingTop: safeAreaInsets.top,
+    paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
+    paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
+  };
+  const scrollContentInsets = {
+    paddingTop: Spacing.three,
     paddingBottom: safeAreaInsets.bottom + BottomTabInset + Spacing.four,
     paddingLeft: Math.max(safeAreaInsets.left, Spacing.three),
     paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
@@ -92,15 +98,20 @@ export function DiaryScreen() {
             <DiaryStatePaper>
               <ActivityIndicator color={DiaryColors.accent} />
               <ThemedText style={styles.loadingStateText} selectable>
-                日記を読み込んでいます。
+                ノートを読み込んでいます。
               </ThemedText>
             </DiaryStatePaper>
           ) : errorMessage ? (
-            <View style={styles.statePanel}>
-              <ThemedText style={styles.stateTitle} selectable>
+            <View
+              style={[
+                styles.statePanel,
+                { backgroundColor: palette.card, borderColor: palette.text },
+              ]}
+            >
+              <ThemedText style={[styles.stateTitle, { color: palette.text }]} selectable>
                 読み込めませんでした
               </ThemedText>
-              <ThemedText style={styles.stateText} selectable>
+              <ThemedText style={[styles.stateText, { color: palette.muted }]} selectable>
                 {errorMessage}
               </ThemedText>
               <Pressable
@@ -116,12 +127,17 @@ export function DiaryScreen() {
               </Pressable>
             </View>
           ) : (
-            <View style={styles.statePanel}>
-              <ThemedText style={styles.stateTitle} selectable>
-                日記はまだありません
+            <View
+              style={[
+                styles.statePanel,
+                { backgroundColor: palette.card, borderColor: palette.text },
+              ]}
+            >
+              <ThemedText style={[styles.stateTitle, { color: palette.text }]} selectable>
+                ノートはまだありません
               </ThemedText>
-              <ThemedText style={styles.stateText} selectable>
-                今日タブで話すか書くと、この日記タブに表示されます。
+              <ThemedText style={[styles.stateText, { color: palette.muted }]} selectable>
+                ホームで話すか書くと、このノートに表示されます。
               </ThemedText>
             </View>
           )}
@@ -131,40 +147,47 @@ export function DiaryScreen() {
   }
 
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: palette.background }]}
-      scrollEnabled={!isWaveformScrubbing}
-      contentContainerStyle={[styles.content, contentInsets]}
-      refreshControl={
-        <RefreshControl
-          refreshing={entriesQuery.isRefetching}
-          onRefresh={refreshEntries}
-          tintColor={palette.primary}
-        />
-      }
-    >
-      <View style={styles.container}>
-        {errorMessage ? (
-          <View style={styles.errorBanner}>
-            <ThemedText type="smallBold" style={styles.errorText} selectable>
-              {errorMessage}
-            </ThemedText>
-          </View>
-        ) : null}
-
-        <View style={styles.diaryPaperList}>
+    <View style={[styles.filledScreen, { backgroundColor: palette.background }]}>
+      <View style={modeSwitchInsets}>
+        <View style={styles.modeSwitchDock}>
           <DiaryModeSwitch value={displayMode} onChange={handleDisplayModeChange} />
-          {entries.map((entry) => (
-            <DiaryPaper
-              key={entry.id}
-              displayMode={displayMode}
-              entry={entry}
-              onWaveformScrubbingChange={setIsWaveformScrubbing}
-            />
-          ))}
         </View>
       </View>
-    </ScrollView>
+
+      <ScrollView
+        style={styles.scrollView}
+        scrollEnabled={!isWaveformScrubbing}
+        contentContainerStyle={[styles.content, scrollContentInsets]}
+        refreshControl={
+          <RefreshControl
+            refreshing={entriesQuery.isRefetching}
+            onRefresh={refreshEntries}
+            tintColor={palette.primary}
+          />
+        }
+      >
+        <View style={styles.container}>
+          {errorMessage ? (
+            <View style={styles.errorBanner}>
+              <ThemedText type="smallBold" style={styles.errorText} selectable>
+                {errorMessage}
+              </ThemedText>
+            </View>
+          ) : null}
+
+          <View style={styles.diaryPaperList}>
+            {entries.map((entry) => (
+              <DiaryPaper
+                key={entry.id}
+                displayMode={displayMode}
+                entry={entry}
+                onWaveformScrubbingChange={setIsWaveformScrubbing}
+              />
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -175,30 +198,24 @@ function DiaryModeSwitch({
   onChange: (value: DiaryDisplayMode) => void;
   value: DiaryDisplayMode;
 }) {
-  return (
-    <View style={styles.modeSwitch} accessibilityRole="radiogroup">
-      {DisplayModeOptions.map((option, index) => {
-        const isSelected = option.value === value;
+  const selectedIndex = DisplayModeOptions.findIndex((option) => option.value === value);
 
-        return (
-          <Pressable
-            key={option.value}
-            accessibilityRole="radio"
-            accessibilityState={{ checked: isSelected }}
-            onPress={() => onChange(option.value)}
-            style={({ pressed }) => [
-              styles.modeButton,
-              index > 0 && styles.modeButtonDivider,
-              isSelected && styles.modeButtonSelected,
-              pressed && styles.modeButtonPressed,
-            ]}
-          >
-            <ThemedText style={[styles.modeButtonText, isSelected && styles.modeButtonTextSelected]}>
-              {option.label}
-            </ThemedText>
-          </Pressable>
-        );
-      })}
+  return (
+    <View style={styles.modeSwitchFrame}>
+      <SegmentedControl
+        onChange={({ nativeEvent }) => {
+          const nextMode = DisplayModeOptions[nativeEvent.selectedSegmentIndex]?.value;
+
+          if (nextMode) {
+            onChange(nextMode);
+          }
+        }}
+        selectedIndex={selectedIndex}
+        style={styles.modeSwitch}
+        testID="diary-display-mode-segmented-control"
+        tintColor={DiaryColors.accent}
+        values={DisplayModeOptions.map((option) => option.label)}
+      />
     </View>
   );
 }
@@ -311,7 +328,7 @@ function isDiaryDisplayMode(value: string | null): value is DiaryDisplayMode {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : '日記を読み込めませんでした。';
+  return error instanceof Error ? error.message : 'ノートを読み込めませんでした。';
 }
 
 function formatDate(value: string) {
@@ -352,6 +369,7 @@ function normalizeDisplayText(value: string) {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
+  filledScreen: { flex: 1 },
   screen: { flex: 1, alignItems: 'center' },
   content: { alignItems: 'center' },
   container: {
@@ -368,35 +386,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   diaryPaperList: { gap: Spacing.three },
-  modeSwitch: {
-    alignSelf: 'stretch',
-    flexDirection: 'row',
-    overflow: 'hidden',
-    borderRadius: 18,
-    borderCurve: 'continuous',
-    borderWidth: 4,
-    borderColor: DiaryColors.bodyText,
-    backgroundColor: DiaryColors.paper,
+  modeSwitchDock: {
+    alignSelf: 'center',
+    maxWidth: MaxContentWidth,
+    width: '100%',
   },
-  modeButton: {
-    flex: 1,
-    minHeight: 44,
-    minWidth: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.two,
+  modeSwitchFrame: {
+    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
   },
-  modeButtonDivider: { borderLeftWidth: 4, borderLeftColor: DiaryColors.bodyText },
-  modeButtonSelected: { backgroundColor: DiaryColors.bodyText },
-  modeButtonPressed: { opacity: 0.72 },
-  modeButtonText: {
-    color: DiaryColors.bodyText,
-    fontSize: 14,
-    lineHeight: 18,
-    fontWeight: 900,
+  modeSwitch: {
+    alignSelf: 'center',
+    minHeight: 36,
+    transform: [{ scale: 1.15 }],
+    width: '95%',
   },
-  modeButtonTextSelected: { color: DiaryColors.paper },
   diaryPaperSurface: { alignSelf: 'stretch' },
   diaryPaper: {
     borderRadius: 20,
@@ -485,18 +489,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderCurve: 'continuous',
     borderWidth: 4,
-    borderColor: DiaryColors.bodyText,
-    backgroundColor: '#FFFFFF',
     padding: Spacing.four,
     gap: Spacing.three,
   },
   stateTitle: {
-    color: DiaryColors.bodyText,
-    fontSize: 24,
-    lineHeight: 31,
-    fontWeight: 800,
+    fontSize: 28,
+    lineHeight: 36,
+    fontWeight: 900,
   },
-  stateText: { color: '#5F6670', fontSize: 16, lineHeight: 24, fontWeight: 600 },
+  stateText: { fontSize: 17, lineHeight: 26, fontWeight: 700 },
   retryButton: {
     minHeight: 48,
     alignItems: 'center',

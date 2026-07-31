@@ -229,25 +229,43 @@ export type Database = {
       review_events: {
         Row: {
           card_id: string
+          client_event_id: string
           id: number
           rating: string
           reviewed_at: string
+          result_due_at: string | null
+          result_last_reviewed_at: string | null
+          result_review_count: number
+          result_srs_status: string
+          result_success_streak: number
           undone_at: string | null
           user_id: string
         }
         Insert: {
           card_id: string
+          client_event_id: string
           id?: never
           rating: string
           reviewed_at?: string
+          result_due_at?: string | null
+          result_last_reviewed_at?: string | null
+          result_review_count: number
+          result_srs_status: string
+          result_success_streak: number
           undone_at?: string | null
           user_id: string
         }
         Update: {
           card_id?: string
+          client_event_id?: string
           id?: never
           rating?: string
           reviewed_at?: string
+          result_due_at?: string | null
+          result_last_reviewed_at?: string | null
+          result_review_count?: number
+          result_srs_status?: string
+          result_success_streak?: number
           undone_at?: string | null
           user_id?: string
         }

@@ -20,9 +20,7 @@ type SelectorOption<T extends string> = {
 };
 
 const Colors = {
-  aqua: '#65D7F2',
   blue: '#276EF1',
-  coral: '#FF7661',
   cream: '#FFFFFF',
   dark: '#111111',
   ink: '#111111',
@@ -96,9 +94,8 @@ export function ThemeSchemeSelector() {
 
   return (
     <SettingsOptionSection
+      accentColor={Colors.lemon}
       currentValue={settings.themeScheme}
-      kicker="Look"
-      kickerColor={Colors.mint}
       minOptionWidth={128}
       onChange={settings.setThemeScheme}
       options={ThemeOptions}
@@ -112,9 +109,8 @@ export function SplitPolicySelector() {
 
   return (
     <SettingsOptionSection
+      accentColor={Colors.orange}
       currentValue={settings.splitPolicy}
-      kicker="Build"
-      kickerColor={Colors.coral}
       minOptionWidth={184}
       onChange={settings.setSplitPolicy}
       options={SplitPolicyOptions}
@@ -129,9 +125,8 @@ export function TranslationStyleSelector() {
 
   return (
     <SettingsOptionSection
+      accentColor={Colors.purple}
       currentValue={settings.translationStyle}
-      kicker="Translate"
-      kickerColor={Colors.mint}
       minOptionWidth={184}
       onChange={settings.setTranslationStyle}
       options={TranslationStyleOptions}
@@ -142,18 +137,16 @@ export function TranslationStyleSelector() {
 }
 
 function SettingsOptionSection<T extends string>({
+  accentColor,
   currentValue,
-  kicker,
-  kickerColor,
   minOptionWidth,
   onChange,
   options,
   stacked = false,
   title,
 }: {
+  accentColor: string;
   currentValue: T;
-  kicker: string;
-  kickerColor: string;
   minOptionWidth: number;
   onChange: (value: T) => void;
   options: SelectorOption<T>[];
@@ -163,15 +156,10 @@ function SettingsOptionSection<T extends string>({
   const palette = useDailyPalette();
 
   return (
-    <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <View style={[styles.sectionKicker, { backgroundColor: kickerColor }]}>
-          <ThemedText style={styles.sectionKickerText}>{kicker}</ThemedText>
-        </View>
-        <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
-          {title}
-        </ThemedText>
-      </View>
+    <View style={[styles.section, { borderLeftColor: accentColor }]}>
+      <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
+        {title}
+      </ThemedText>
 
       <View
         style={[styles.optionRow, stacked ? styles.stackedOptionRow : null]}
@@ -251,22 +239,12 @@ function SettingsOptionSection<T extends string>({
 }
 
 const styles = StyleSheet.create({
-  section: { gap: Spacing.three },
-  sectionHeader: { gap: Spacing.two },
-  sectionKicker: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 3,
-    borderColor: Colors.ink,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  sectionKickerText: {
-    color: Colors.ink,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: 900,
-    textTransform: 'uppercase',
+  section: {
+    gap: Spacing.three,
+    borderLeftWidth: 7,
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
+    paddingLeft: Spacing.three,
   },
   sectionTitle: { fontSize: 26, lineHeight: 32, fontWeight: 900 },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },

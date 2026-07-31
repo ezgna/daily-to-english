@@ -6,6 +6,13 @@ export const translationStyleSchema = z.enum(['native', 'simple']);
 export const generationStatusSchema = z.enum(['split', 'translating', 'completed', 'failed', 'discarded']);
 export const srsStatusSchema = z.enum(['new', 'learning', 'known']);
 export const reviewRatingSchema = z.enum(['again', 'good']);
+export const reviewRequestSchema = z.object({
+  eventId: z.string().uuid(),
+  rating: reviewRatingSchema,
+});
+export const undoReviewRequestSchema = z.object({
+  reviewEventId: z.string().uuid(),
+});
 
 export const defaultTranslationStyle = 'simple' satisfies TranslationStyle;
 export const defaultSplitPolicy = 'small_steps' satisfies SplitPolicy;
@@ -117,6 +124,8 @@ export type TranslationStyle = z.infer<typeof translationStyleSchema>;
 export type GenerationStatus = z.infer<typeof generationStatusSchema>;
 export type SrsStatus = z.infer<typeof srsStatusSchema>;
 export type ReviewRating = z.infer<typeof reviewRatingSchema>;
+export type ReviewRequest = z.infer<typeof reviewRequestSchema>;
+export type UndoReviewRequest = z.infer<typeof undoReviewRequestSchema>;
 export type TranscriptWord = z.infer<typeof transcriptWordSchema>;
 export type Entry = z.infer<typeof entrySchema>;
 export type Generation = z.infer<typeof generationSchema>;
