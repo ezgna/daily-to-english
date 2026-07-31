@@ -8,24 +8,19 @@ import {
   subscribeToLocalRecordings,
   type LocalRecordingStats,
 } from '@/features/recordings/recording-store';
+import { SettingsSection } from '@/features/settings/settings-section';
 import { useSettings } from '@/features/settings/settings-store';
-import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
+import { SettingsColors } from '@/features/settings/settings-theme';
 import { Spacing } from '@/shared/legacy/theme';
 import { ThemedText } from '@/shared/legacy/themed-text';
+import { FoundationSurface } from '@/shared/legacy/ui/foundation-surface';
 import { GlideButton } from '@/shared/legacy/ui/glide-button';
-
-const Colors = {
-  cream: '#FFFFFF',
-  ink: '#111111',
-  mint: '#2FDD6C',
-  paper: '#FFF6E7',
-} as const;
 
 export function LocalRecordingSettings() {
   const settings = useSettings();
-  const palette = useDailyPalette();
   const [stats, setStats] = useState<LocalRecordingStats>(getLocalRecordingStats);
   const [isDeleting, setIsDeleting] = useState(false);
+  const formattedStats = formatRecordingStats(stats);
 
   useEffect(() => {
     setStats(getLocalRecordingStats());
@@ -51,44 +46,61 @@ export function LocalRecordingSettings() {
   }
 
   return (
-    <View style={styles.section}>
-      <View style={styles.titleRow}>
-        <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
-          録音保存
-        </ThemedText>
-        <View style={styles.currentBadge}>
-          <ThemedText style={styles.currentBadgeText}>{formatRecordingStats(stats)}</ThemedText>
-        </View>
-      </View>
-
+    <SettingsSection
+      accentColor={SettingsColors.mint}
+      badge={formattedStats}
+      description="元の音声を端末に残すか、保存済みデータを管理します。"
+      title="録音とデータ"
+    >
       <View style={styles.panel}>
-        <View style={styles.toggleRow}>
+        <FoundationSurface
+          containerStyle={styles.toggleSurface}
+          foundationBorderColor={SettingsColors.ink}
+          foundationBorderWidth={2}
+          foundationColor={SettingsColors.foundation}
+          foundationDepth={7}
+          foundationDirection="diagonal"
+          foundationDistanceScale={0.72}
+          foundationRadiusMode="concentric"
+          style={styles.toggleCard}
+        >
           <View style={styles.iconBadge}>
             <SymbolView
               name={{ ios: 'mic.badge.plus', android: 'mic', web: 'mic' }}
               size={20}
-              tintColor={Colors.ink}
+              tintColor={SettingsColors.ink}
             />
           </View>
           <View style={styles.toggleCopy}>
-            <ThemedText style={styles.toggleLabel} selectable>
+            <ThemedText
+              maxFontSizeMultiplier={1.4}
+              selectable
+              style={styles.toggleLabel}
+            >
               端末に残す
             </ThemedText>
-            <ThemedText style={styles.toggleCaption} selectable>
+            <ThemedText
+              maxFontSizeMultiplier={1.5}
+              selectable
+              style={styles.toggleCaption}
+            >
               カードから元の音声を再生できます。
             </ThemedText>
           </View>
           <Switch
+            accessibilityHint="カードから元の音声を再生できるようにします"
             accessibilityLabel="録音を端末に保存"
+            ios_backgroundColor="#D8D0C1"
             onValueChange={settings.setSaveRecordings}
-            thumbColor={Colors.cream}
-            trackColor={{ false: '#D8D0C1', true: Colors.mint }}
+            thumbColor={SettingsColors.cream}
+            trackColor={{ false: '#D8D0C1', true: SettingsColors.mint }}
             value={settings.saveRecordings}
           />
-        </View>
+        </FoundationSurface>
 
         <GlideButton
-          accessibilityLabel="保存済み録音をすべて削除"
+          accessibilityLabel={`保存済み録音をすべて削除、${formattedStats}`}
+          badge={formattedStats}
           busy={isDeleting}
           disabled={stats.count === 0 || isDeleting}
           icon={{ ios: 'trash.fill', android: 'delete', web: 'delete' }}
@@ -98,7 +110,7 @@ export function LocalRecordingSettings() {
           tone="coral"
         />
       </View>
-    </View>
+    </SettingsSection>
   );
 }
 
@@ -119,60 +131,51 @@ function formatBytes(value: number) {
 }
 
 const styles = StyleSheet.create({
-  section: {
+  panel: {
     gap: Spacing.three,
-    borderLeftWidth: 7,
-    borderLeftColor: Colors.mint,
-    borderTopLeftRadius: 4,
-    borderBottomLeftRadius: 4,
-    paddingLeft: Spacing.three,
   },
-  titleRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
+  toggleSurface: {
+    alignSelf: 'stretch',
   },
-  sectionTitle: { fontSize: 26, lineHeight: 32, fontWeight: 900 },
-  currentBadge: {
-    borderRadius: 999,
-    borderWidth: 3,
-    borderColor: Colors.ink,
-    backgroundColor: Colors.cream,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  currentBadgeText: { color: Colors.ink, fontSize: 12, lineHeight: 16, fontWeight: 900 },
-  panel: { gap: Spacing.three },
-  toggleRow: {
+  toggleCard: {
+    minHeight: 78,
     alignItems: 'center',
     flexDirection: 'row',
     gap: Spacing.three,
     borderRadius: 18,
     borderCurve: 'continuous',
     borderWidth: 3,
-    borderColor: Colors.ink,
-    backgroundColor: Colors.paper,
+    borderColor: SettingsColors.ink,
+    backgroundColor: SettingsColors.paper,
     padding: Spacing.three,
   },
   iconBadge: {
     width: 42,
     height: 42,
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,
     borderCurve: 'continuous',
     borderWidth: 3,
-    borderColor: Colors.ink,
-    backgroundColor: Colors.cream,
+    borderColor: SettingsColors.ink,
+    backgroundColor: SettingsColors.cream,
   },
-  toggleCopy: { flex: 1, minWidth: 0, gap: Spacing.half },
-  toggleLabel: { color: Colors.ink, fontSize: 17, lineHeight: 22, fontWeight: 900 },
+  toggleCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: Spacing.half,
+  },
+  toggleLabel: {
+    color: SettingsColors.ink,
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '900',
+  },
   toggleCaption: {
-    color: 'rgba(17, 17, 17, 0.66)',
+    color: SettingsColors.mutedInk,
     fontSize: 12,
-    lineHeight: 16,
-    fontWeight: 700,
+    lineHeight: 17,
+    fontWeight: '700',
   },
 });

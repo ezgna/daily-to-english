@@ -16,8 +16,10 @@ type GlideOptionSurfaceProps = {
   onPress: () => void;
   size?: GlideSize;
   accessibilityRole?: PressableProps['accessibilityRole'];
+  accessibilityLabel?: string;
   accessibilityState?: PressableProps['accessibilityState'];
   containerStyle?: StyleProp<ViewStyle>;
+  foundationColor?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -25,10 +27,12 @@ const SelectedFoundationDepth = GlideSizeMetrics.large.foundationDepth;
 const RestingFoundationDepth = GlideSizeMetrics.medium.foundationDepth;
 
 export function GlideOptionSurface({
+  accessibilityLabel,
   accessibilityRole,
   accessibilityState,
   children,
   containerStyle,
+  foundationColor = GlideFoundationColor,
   onPress,
   selected,
   size = 'large',
@@ -38,10 +42,11 @@ export function GlideOptionSurface({
 
   return (
     <FoundationSurface
+      accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole}
       accessibilityState={accessibilityState}
       containerStyle={containerStyle}
-      foundationColor={GlideFoundationColor}
+      foundationColor={foundationColor}
       foundationDepth={selected ? SelectedFoundationDepth : RestingFoundationDepth}
       foundationDirection="diagonal"
       foundationDistanceScale={GlideFoundationDistance}

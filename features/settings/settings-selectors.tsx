@@ -1,91 +1,67 @@
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { StyleSheet, View } from 'react-native';
-
 import type { SplitPolicy, TranslationStyle } from '@just-speak-it/contract';
 
+import {
+  SettingsOptionSection,
+  type SettingsSelectorOption,
+} from '@/features/settings/settings-option-section';
 import { useSettings, type ThemeScheme } from '@/features/settings/settings-store';
-import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
-import { Spacing } from '@/shared/legacy/theme';
-import { ThemedText } from '@/shared/legacy/themed-text';
-import { GlideOptionSurface } from '@/shared/legacy/ui/glide-option-surface';
+import { SettingsColors } from '@/features/settings/settings-theme';
 
-type SelectorOption<T extends string> = {
-  activeBackgroundColor: string;
-  activeCaptionColor?: string;
-  activeTextColor: string;
-  caption?: string;
-  icon: SymbolViewProps['name'];
-  label: string;
-  value: T;
-};
-
-const Colors = {
-  blue: '#276EF1',
-  cream: '#FFFFFF',
-  dark: '#111111',
-  ink: '#111111',
-  lemon: '#F4E75E',
-  mint: '#2FDD6C',
-  orange: '#FF9F45',
-  paper: '#FFF6E7',
-  purple: '#9B7CFF',
-  white: '#FFFFFF',
-} as const;
-
-const ThemeOptions: SelectorOption<ThemeScheme>[] = [
+const ThemeOptions: SettingsSelectorOption<ThemeScheme>[] = [
   {
     value: 'light',
     label: 'ライト',
     icon: { ios: 'sun.max.fill', android: 'light_mode', web: 'light_mode' },
-    activeBackgroundColor: Colors.lemon,
-    activeTextColor: Colors.ink,
+    activeBackgroundColor: SettingsColors.lemon,
+    activeTextColor: SettingsColors.ink,
   },
   {
     value: 'dark',
     label: 'ダーク',
     icon: { ios: 'moon.fill', android: 'dark_mode', web: 'dark_mode' },
-    activeBackgroundColor: Colors.dark,
-    activeTextColor: Colors.white,
+    activeBackgroundColor: SettingsColors.darkSurface,
+    activeTextColor: SettingsColors.white,
+    selectedBorderColor: SettingsColors.white,
   },
 ];
 
-const SplitPolicyOptions: SelectorOption<SplitPolicy>[] = [
+const SplitPolicyOptions: SettingsSelectorOption<SplitPolicy>[] = [
   {
     value: 'meaning_unit',
     label: '自然なまとまり',
-    caption: '流れを保って分ける',
+    caption: '話の流れを保って分ける',
     icon: { ios: 'text.bubble.fill', android: 'chat_bubble', web: 'chat_bubble' },
-    activeBackgroundColor: Colors.blue,
-    activeTextColor: Colors.white,
+    activeBackgroundColor: SettingsColors.blue,
+    activeTextColor: SettingsColors.white,
     activeCaptionColor: 'rgba(255, 255, 255, 0.82)',
   },
   {
     value: 'small_steps',
     label: '細かく分ける',
-    caption: '短いカードにする',
+    caption: '短いカードで少しずつ覚える',
     icon: { ios: 'rectangle.split.2x1.fill', android: 'splitscreen', web: 'splitscreen' },
-    activeBackgroundColor: Colors.orange,
-    activeTextColor: Colors.ink,
+    activeBackgroundColor: SettingsColors.orange,
+    activeTextColor: SettingsColors.ink,
   },
 ];
 
-const TranslationStyleOptions: SelectorOption<TranslationStyle>[] = [
+const TranslationStyleOptions: SettingsSelectorOption<TranslationStyle>[] = [
   {
     value: 'native',
     label: '自然さ優先',
-    caption: 'ネイティブ表現',
+    caption: '英語らしい自然な表現にする',
     icon: { ios: 'sparkles', android: 'auto_awesome', web: 'auto_awesome' },
-    activeBackgroundColor: Colors.purple,
-    activeTextColor: Colors.white,
+    activeBackgroundColor: SettingsColors.purple,
+    activeTextColor: SettingsColors.white,
     activeCaptionColor: 'rgba(255, 255, 255, 0.82)',
   },
   {
     value: 'simple',
     label: '簡単さ優先',
-    caption: 'やさしい語彙と文',
+    caption: 'やさしい語彙と短い文にする',
     icon: { ios: 'textformat.size', android: 'format_size', web: 'format_size' },
-    activeBackgroundColor: Colors.mint,
-    activeTextColor: Colors.ink,
+    activeBackgroundColor: SettingsColors.mint,
+    activeTextColor: SettingsColors.ink,
   },
 ];
 
@@ -94,12 +70,13 @@ export function ThemeSchemeSelector() {
 
   return (
     <SettingsOptionSection
-      accentColor={Colors.lemon}
+      accentColor={SettingsColors.lemon}
       currentValue={settings.themeScheme}
+      description="アプリ全体の明るさを切り替えます。"
       minOptionWidth={128}
       onChange={settings.setThemeScheme}
       options={ThemeOptions}
-      title="表示モード"
+      title="見た目"
     />
   );
 }
@@ -109,8 +86,9 @@ export function SplitPolicySelector() {
 
   return (
     <SettingsOptionSection
-      accentColor={Colors.orange}
+      accentColor={SettingsColors.orange}
       currentValue={settings.splitPolicy}
+      description="話した内容を、練習カードへ分ける粒度です。"
       minOptionWidth={184}
       onChange={settings.setSplitPolicy}
       options={SplitPolicyOptions}
@@ -125,149 +103,15 @@ export function TranslationStyleSelector() {
 
   return (
     <SettingsOptionSection
-      accentColor={Colors.purple}
+      accentColor={SettingsColors.purple}
+      accentTextColor={SettingsColors.white}
       currentValue={settings.translationStyle}
+      description="日本語から作る英語の方向性を選びます。"
       minOptionWidth={184}
       onChange={settings.setTranslationStyle}
       options={TranslationStyleOptions}
       stacked
-      title="英訳スタイル"
+      title="英語の仕上がり"
     />
   );
 }
-
-function SettingsOptionSection<T extends string>({
-  accentColor,
-  currentValue,
-  minOptionWidth,
-  onChange,
-  options,
-  stacked = false,
-  title,
-}: {
-  accentColor: string;
-  currentValue: T;
-  minOptionWidth: number;
-  onChange: (value: T) => void;
-  options: SelectorOption<T>[];
-  stacked?: boolean;
-  title: string;
-}) {
-  const palette = useDailyPalette();
-
-  return (
-    <View style={[styles.section, { borderLeftColor: accentColor }]}>
-      <ThemedText style={[styles.sectionTitle, { color: palette.text }]} selectable>
-        {title}
-      </ThemedText>
-
-      <View
-        style={[styles.optionRow, stacked ? styles.stackedOptionRow : null]}
-        accessibilityRole="radiogroup"
-      >
-        {options.map((option) => {
-          const isSelected = option.value === currentValue;
-          const textColor = isSelected ? option.activeTextColor : Colors.ink;
-          const captionColor = isSelected
-            ? option.activeCaptionColor ?? 'rgba(17, 17, 17, 0.66)'
-            : 'rgba(17, 17, 17, 0.66)';
-
-          return (
-            <GlideOptionSurface
-              key={option.value}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: isSelected }}
-              containerStyle={
-                stacked
-                  ? styles.stackedOptionSurface
-                  : [styles.optionSurface, { minWidth: minOptionWidth }]
-              }
-              onPress={() => onChange(option.value)}
-              selected={isSelected}
-              style={[
-                styles.optionButton,
-                {
-                  backgroundColor: isSelected
-                    ? option.activeBackgroundColor
-                    : Colors.paper,
-                },
-              ]}
-            >
-              <View style={[styles.iconBadge, !option.caption && styles.themeIconBadge]}>
-                <SymbolView
-                  name={option.icon}
-                  size={option.caption ? 19 : 18}
-                  tintColor={Colors.ink}
-                  fallback={<ThemedText style={styles.iconFallback}>{'>'}</ThemedText>}
-                />
-              </View>
-              {option.caption ? (
-                <View style={styles.optionCopy}>
-                  <ThemedText numberOfLines={1} style={[styles.optionLabel, { color: textColor }]}>
-                    {option.label}
-                  </ThemedText>
-                  <ThemedText
-                    numberOfLines={1}
-                    style={[styles.optionCaption, { color: captionColor }]}
-                  >
-                    {option.caption}
-                  </ThemedText>
-                </View>
-              ) : (
-                <ThemedText
-                  numberOfLines={1}
-                  style={[styles.optionLabel, styles.themeOptionLabel, { color: textColor }]}
-                >
-                  {option.label}
-                </ThemedText>
-              )}
-              <View
-                style={[
-                  styles.selectionDot,
-                  {
-                    backgroundColor: isSelected ? textColor : 'transparent',
-                    borderColor: textColor,
-                  },
-                ]}
-              />
-            </GlideOptionSurface>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  section: {
-    gap: Spacing.three,
-    borderLeftWidth: 7,
-    borderTopLeftRadius: 4,
-    borderBottomLeftRadius: 4,
-    paddingLeft: Spacing.three,
-  },
-  sectionTitle: { fontSize: 26, lineHeight: 32, fontWeight: 900 },
-  optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
-  stackedOptionRow: { flexDirection: 'column', flexWrap: 'nowrap' },
-  optionSurface: { flex: 1 },
-  stackedOptionSurface: { width: '100%' },
-  optionButton: { alignItems: 'center', justifyContent: 'center' },
-  iconBadge: {
-    width: 38,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 13,
-    borderCurve: 'continuous',
-    borderWidth: 3,
-    borderColor: Colors.ink,
-    backgroundColor: Colors.cream,
-  },
-  themeIconBadge: { width: 34, height: 34, borderRadius: 12 },
-  iconFallback: { color: Colors.ink, fontSize: 14, lineHeight: 18, fontWeight: 900 },
-  optionCopy: { flex: 1, minWidth: 0, gap: Spacing.half },
-  optionLabel: { fontSize: 17, lineHeight: 22, fontWeight: 900 },
-  themeOptionLabel: { flex: 1, minWidth: 0 },
-  optionCaption: { fontSize: 12, lineHeight: 16, fontWeight: 900 },
-  selectionDot: { width: 16, height: 16, borderRadius: 999, borderWidth: 3 },
-});

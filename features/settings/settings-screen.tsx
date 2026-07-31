@@ -1,7 +1,7 @@
-import { Link } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SettingsDeveloperSection } from '@/features/settings/settings-developer-section';
 import { LocalRecordingSettings } from '@/features/settings/local-recording-settings';
 import {
   SplitPolicySelector,
@@ -10,7 +10,6 @@ import {
 } from '@/features/settings/settings-selectors';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/shared/legacy/theme';
-import { GlideButton } from '@/shared/legacy/ui/glide-button';
 
 export function SettingsScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -18,7 +17,6 @@ export function SettingsScreen() {
 
   return (
     <ScrollView
-      style={[styles.screen, { backgroundColor: palette.background }]}
       contentContainerStyle={[
         styles.content,
         {
@@ -28,29 +26,31 @@ export function SettingsScreen() {
           paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
         },
       ]}
+      style={[styles.screen, { backgroundColor: palette.background }]}
     >
       <View style={styles.container}>
-        <Link href="../experiment-lab" asChild>
-          <GlideButton
-            accessibilityLabel="実験室を開く"
-            caption="EXPO UI PLAYGROUND"
-            icon={{ ios: 'flask.fill', android: 'science', web: 'science' }}
-            label="実験室"
-            size="medium"
-            tone="violet"
-          />
-        </Link>
-        <ThemeSchemeSelector />
         <SplitPolicySelector />
         <TranslationStyleSelector />
+        <ThemeSchemeSelector />
         <LocalRecordingSettings />
+        <SettingsDeveloperSection />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  content: { alignItems: 'center', width: '100%' },
-  container: { width: '100%', maxWidth: MaxContentWidth, gap: Spacing.four },
+  screen: {
+    flex: 1,
+  },
+  content: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  container: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    gap: Spacing.five,
+    paddingTop: Spacing.three,
+  },
 });
