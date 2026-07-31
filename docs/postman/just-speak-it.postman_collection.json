@@ -1,0 +1,286 @@
+{
+  "info": {
+    "_postman_id": "b46f1e7f-f923-4f6d-9a6c-75a8110e57f4",
+    "name": "Just Speak It API Demo",
+    "description": "# Just Speak It API Demo\n\n実アプリの日本語入力、音声入力、下書き破棄、復習を個別に確認するCollectionです。\n\n## 使い方\n\n1. `Just Speak It API - Local Template`を選び、`supabaseUrl`と`apikey`を設定します。\n2. `00 Setup`で匿名認証します。\n3. 確認したいシナリオを、フォルダ内の番号順に手動で送信します。\n\nすべてのアプリAPIは`apikey`と`Authorization: Bearer {{bearerToken}}`を使用します。生成結果のIDは環境変数へ自動保存され、次のRequestに渡されます。Collection Runnerで全件を一括実行すると、互いに独立したシナリオまで続けて動くため使用しません。\n\n---\n\nThis collection verifies the app's Japanese text input, voice input, draft discard, and review flows as separate scenarios.\n\n## How to use\n\n1. Select `Just Speak It API - Local Template` and configure `supabaseUrl` and `apikey`.\n2. Create an anonymous session in `00 Setup`.\n3. Run the requests in the selected scenario manually, following their numbered order.\n\nEvery app API request uses `apikey` and `Authorization: Bearer {{bearerToken}}`. IDs returned by one request are saved to environment variables for the next request. Do not run the entire collection with Collection Runner because the folders represent independent scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Setup",
+      "description": "# 00 Setup\n\n各シナリオを実行する前に、Supabaseの匿名ユーザーとセッションを用意するフローです。実アプリでは同等の処理を自動実行しますが、Postmanでは最初にこのAPIを1回送ります。\n\n## 処理順\n\n1. `POST {{supabaseUrl}}/auth/v1/signup`へ`apikey`と空のユーザーデータを送ります。\n2. Supabaseが匿名ユーザーを作成し、セッション情報を返します。\n3. Test scriptが`access_token`を`bearerToken`としてEnvironmentへ保存します。\n4. 以後のRequestは`Authorization: Bearer {{bearerToken}}`で認証されます。\n\n## API 1: Create anonymous session\n\nSupabase Authの匿名サインアップAPIです。Headerに`apikey`と`Content-Type: application/json`、Bodyに`{ \"data\": {} }`を送ります。このAPI自体にはBearer tokenは不要です。成功すると匿名ユーザーとセッションが作成され、`access_token`が返ります。Test scriptはこれを`bearerToken`へ保存します。`refresh_token`と`user.id`も返された場合は、それぞれ`refreshToken`と`userId`へ保存します。再実行すると別の匿名ユーザーが作られます。トークンはCollectionやGit管理ファイルには書き込みません。\n\n---\n\nThis flow creates the anonymous Supabase user and session required before running the other scenarios. The app performs an equivalent step automatically, while Postman requires this API to be sent once at the beginning.\n\n## Flow\n\n1. Send the `apikey` header and an empty user-data object to `POST {{supabaseUrl}}/auth/v1/signup`.\n2. Supabase creates an anonymous user and returns session data.\n3. The test script saves `access_token` as `bearerToken` in the environment.\n4. Subsequent requests authenticate with `Authorization: Bearer {{bearerToken}}`.\n\n## API 1: Create anonymous session\n\nThis is the Supabase Auth anonymous sign-up API. It sends the `apikey` and `Content-Type: application/json` headers with `{ \"data\": {} }`; this request itself does not require a Bearer token. A successful call creates an anonymous user and session and returns `access_token`, which the test script saves as `bearerToken`. If `refresh_token` and `user.id` are also returned, it stores them as `refreshToken` and `userId`. Running the API again creates another anonymous user. Tokens are not written to collection variables or tracked repository files.",
+      "item": [
+        {
+          "name": "Create anonymous session",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('匿名認証が成功する', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                "const json = pm.response.json();",
+                "const session = json.session || json;",
+                "const user = json.user || session.user || {};",
+                "pm.expect(session.access_token, 'access_token').to.be.a('string').and.not.empty;",
+                "pm.environment.set('bearerToken', session.access_token);",
+                "if (session.refresh_token) pm.environment.set('refreshToken', session.refresh_token);",
+                "if (user.id) pm.environment.set('userId', user.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"data\": {}\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/auth/v1/signup",
+            "description": "## 目的\n\nSupabase匿名ユーザーを作成し、以後のAPIに必要な認証情報を用意します。\n\n## 入力と出力\n\n`apikey`をHeaderへ付け、空のユーザーデータを送ります。Test scriptは成功レスポンスの`access_token`を必須として検証し、`bearerToken`へ保存します。`refresh_token`と`user.id`も返された場合は、それぞれ`refreshToken`、`userId`へ保存します。\n\n## 次の操作\n\n認証後は、任意のデモシナリオへ進めます。認証トークンをCollection変数やGit管理ファイルへ保存しません。\n\n---\n\n## Purpose\n\nCreate an anonymous Supabase user and prepare the authentication data required by all subsequent API calls.\n\n## Input and output\n\nThe request sends an empty user-data object with the `apikey` header. The test script requires `access_token` in a successful response and stores it as `bearerToken`. If `refresh_token` and `user.id` are also returned, it stores them as `refreshToken` and `userId`.\n\n## Next step\n\nAfter authentication, continue with any demo scenario. Tokens are not stored in collection variables or tracked repository files."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 Text - Create cards",
+      "description": "# 01 Text - Create cards\n\n実アプリの「書く」モードと同じ2段階のフローです。入力した日本語を最初のAPIでカード単位に分割し、内容を確認してから2つ目のAPIで英訳します。\n\n## 処理順\n\n1. `POST /functions/v1/api/generations`を`mode: split`、`source: text`で呼び出します。\n2. 返された`cards[].ja`を確認します。この時点の`cards[].en`は`null`です。\n3. 内容に問題がなければ`POST /functions/v1/api/generations/{{textGenerationId}}/translate`を呼び出します。\n4. `generation.status`が`completed`になり、同じカードの`cards[].en`へ英語が保存されます。\n\n## API 1: Create Japanese draft\n\n日本語本文を英語練習用のカード単位へ分割するAPIです。`mode: split`、`source: text`、1〜4000文字の`rawText`と`cleanText`、`splitPolicy`、`translationStyle`などを送ります。送信直前のscriptが重複生成を防ぐ`idempotencyKey`を作ります。APIは日次利用上限を確認し、OpenAIで日本語を分割して、`entry`、`generation`、非空の`cards`を返します。DBの`entries`、`generations`、`cards`には未翻訳下書きが保存され、状態は`split`、`cards[].en`は`null`です。Test scriptは`textGenerationId`、`entryId`、`reviewCardId`、カードID一覧を保存します。同じユーザーと`idempotencyKey`で再送した場合は既存結果を返します。ここでは英訳しません。\n\n## API 2: Translate approved draft\n\n確認済みの日本語カードを英訳し、Generationを完成させるAPIです。Pathの`{{textGenerationId}}`でAPI 1の下書きを指定し、Bodyで`translationStyle: simple`または`native`を送ります。日本語本文は再送しません。APIは日次利用上限を確認して状態を一時的に`translating`へ変更し、OpenAIで各カードを英訳します。成功するとカードID・順番・日本語を維持したまま`cards[].en`を保存し、状態を`completed`へ更新します。すでに完了済みなら既存結果を返し、破棄済みなら409、翻訳失敗時は`failed`になります。分割結果を人が確認する工程があるため、2つのAPIはRunnerで自動連結していません。\n\n---\n\nThis two-step flow mirrors the app's Write mode. The first API splits the Japanese input into cards, and the second API translates them only after the user reviews the split.\n\n## Flow\n\n1. Call `POST /functions/v1/api/generations` with `mode: split` and `source: text`.\n2. Review `cards[].ja`; `cards[].en` is `null` at this stage.\n3. If the draft is acceptable, call `POST /functions/v1/api/generations/{{textGenerationId}}/translate`.\n4. The generation becomes `completed`, and the same cards receive English values in `cards[].en`.\n\n## API 1: Create Japanese draft\n\nThis API splits Japanese text into cards suitable for English practice. Send `mode: split`, `source: text`, 1–4000 characters in `rawText` and `cleanText`, plus `splitPolicy` and `translationStyle`. A pre-request script creates an `idempotencyKey` to prevent duplicate generation. The API checks the daily limit, uses OpenAI for splitting, returns `entry`, `generation`, and a non-empty `cards` array, and stores untranslated rows in `entries`, `generations`, and `cards`. The result has status `split` and `cards[].en: null`. The test script saves `textGenerationId`, `entryId`, `reviewCardId`, and the card ID list. Reusing the same user and idempotency key returns the existing result. No translation happens here.\n\n## API 2: Translate approved draft\n\nThis API translates the approved Japanese cards and completes the generation. The path variable `{{textGenerationId}}` identifies the draft created by API 1, and the body sends `translationStyle: simple` or `native`; the Japanese source text is not sent again. The API checks the daily limit, temporarily claims the generation as `translating`, and uses OpenAI to translate each card. On success, it preserves card IDs, order, and Japanese text, writes `cards[].en`, and changes the status to `completed`. An already completed generation returns its existing result; a discarded generation returns 409; a translation failure sets the status to `failed`. The APIs are not chained in Collection Runner because the app includes a manual review step.",
+      "item": [
+        {
+          "name": "1. Create Japanese draft",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": { "type": "text/javascript", "exec": ["pm.variables.set('idempotencyKey', 'postman-text-' + Date.now());"] }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('日本語カードの下書きが作成される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.generation.status).to.eql('split');",
+                  "pm.expect(json.cards).to.be.an('array').that.is.not.empty;",
+                  "json.cards.forEach((card) => { pm.expect(card.ja).to.be.a('string').and.not.empty; pm.expect(card.en).to.eql(null); });",
+                  "pm.environment.set('textGenerationId', json.generation.id);",
+                  "pm.environment.set('entryId', json.entry.id);",
+                  "pm.environment.set('reviewCardId', json.cards[0].id);",
+                  "pm.environment.set('textDraftCardIds', JSON.stringify(json.cards.map((card) => card.id)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{idempotencyKey}}\",\n  \"mode\": \"split\",\n  \"source\": \"text\",\n  \"rawText\": \"今日は図書館で勉強した。帰りに友達とコーヒーを飲んだ。\",\n  \"cleanText\": \"今日は図書館で勉強した。帰りに友達とコーヒーを飲んだ。\",\n  \"isEdited\": false,\n  \"splitPolicy\": \"small_steps\",\n  \"translationStyle\": \"simple\",\n  \"transcript\": [],\n  \"waveform\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{supabaseUrl}}/functions/v1/api/generations",
+            "description": "## 目的\n\n入力した日本語を、英語練習に適した日本語カードへ分割します。このRequestではまだ英訳しません。\n\n## 主な入力\n\n- `mode: split`: 分割だけを実行\n- `source: text`: テキスト入力として保存\n- `rawText`、`cleanText`: カード化したい日本語\n- `splitPolicy`: 分割の細かさ\n- `translationStyle`: 次の英訳で使うスタイル\n\n## 成功時\n\n`generation.status`は`split`になります。`cards[].ja`には分割済み日本語、`cards[].en`には`null`が入ります。Test scriptは`textGenerationId`、`entryId`、`reviewCardId`、カードID一覧を保存します。\n\n## 確認点\n\n`cards[].ja`が意味の通る単位に分かれているか確認します。問題があればTranslateへ進みません。破棄API自体を試す場合は、独立した`02 Text - Discard draft`シナリオを先頭から実行してください。\n\n---\n\n## Purpose\n\nSplit Japanese input into Japanese draft cards suitable for English practice. This request does not translate them yet.\n\n## Main input\n\n- `mode: split`: run splitting only\n- `source: text`: store the entry as text input\n- `rawText`, `cleanText`: Japanese text to turn into cards\n- `splitPolicy`: card split granularity\n- `translationStyle`: style used by the next translation request\n\n## On success\n\n`generation.status` is `split`. `cards[].ja` contains the Japanese drafts, while `cards[].en` is `null`. The test script saves `textGenerationId`, `entryId`, `reviewCardId`, and the card ID list.\n\n## What to check\n\nConfirm that `cards[].ja` is split into meaningful units. If the split is unacceptable, do not translate it. To demonstrate the discard API, run the separate `02 Text - Discard draft` scenario from its first request."
+          }
+        },
+        {
+          "name": "2. Translate approved draft",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('確認済み下書きが英訳される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+                "const json = pm.response.json();",
+                "pm.expect(json.generation.status).to.eql('completed');",
+                "pm.expect(json.cards).to.be.an('array').that.is.not.empty;",
+                "json.cards.forEach((card) => { pm.expect(card.ja).to.be.a('string').and.not.empty; pm.expect(card.en).to.be.a('string').and.not.empty; });",
+                "pm.expect(json.generation.id).to.eql(pm.environment.get('textGenerationId'));",
+                "pm.expect(json.cards.map((card) => card.id)).to.deep.eql(JSON.parse(pm.environment.get('textDraftCardIds')));",
+                "pm.environment.set('reviewCardId', json.cards[0].id);",
+                "pm.environment.set('reviewBaseline', JSON.stringify(json.cards[0]));"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"translationStyle\": \"simple\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/functions/v1/api/generations/{{textGenerationId}}/translate",
+            "description": "## 目的\n\n確認済みの日本語カードを自然な英語へ翻訳し、カード作成を完了します。\n\n## 入力\n\nPathの`textGenerationId`で直前の下書きを指定し、Bodyの`translationStyle`へ`simple`または`native`を設定します。日本語本文は再送しません。\n\n## 成功時\n\n`generation.status`が`completed`になり、各`cards[].en`へ英語が保存されます。カードのIDと並び順は分割時から変わりません。Test scriptは英訳前後のカードID一致も確認します。\n\n## 副作用\n\nOpenAIへの英訳リクエストと、DB内のカード・Generation更新が発生します。同じcompleted Generationを再送した場合は既存結果が返ります。\n\n---\n\n## Purpose\n\nTranslate the approved Japanese draft cards into natural English and complete the generation.\n\n## Input\n\nThe path uses `textGenerationId` from the previous request. Set `translationStyle` to `simple` or `native`. The Japanese source text is not sent again.\n\n## On success\n\n`generation.status` becomes `completed`, and each card receives an English value in `cards[].en`. Card IDs and order remain unchanged from the split result. The test script verifies that identity as well.\n\n## Side effects\n\nThe request calls OpenAI and updates the cards and generation in the database. Sending it again for an already completed generation returns the existing result."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Text - Discard draft",
+      "description": "# 02 Text - Discard draft\n\n実アプリで日本語カードの分割結果を確認し、「やり直す」を選ぶ場合の2段階フローです。最初のAPIで確認用の下書きを作り、2つ目のAPIで英訳せずに破棄します。\n\n## 処理順\n\n1. `POST /functions/v1/api/generations`を`mode: split`、`source: text`で呼び出します。\n2. 返された`cards[].ja`を確認します。この時点の`cards[].en`は`null`です。\n3. `POST /functions/v1/api/generations/{{discardGenerationId}}/discard`を呼び出します。\n4. `generation.status`が`discarded`になったことを確認します。\n\n## API 1: Create draft to discard\n\n破棄動作を確認するための日本語下書きを作るAPIです。入力と基本処理は`01`のAPI 1と同じで、`mode: split`、`source: text`、日本語本文、分割方針などを送ります。送信直前に破棄デモ専用の`idempotencyKey`を作り、日次利用上限を確認した後、OpenAIで分割します。返り値は`entry`、状態が`split`の`generation`、日本語だけが入った`cards`です。DBへ下書きを保存し、Test scriptは生成IDを`discardGenerationId`へ保存します。このシナリオは独立しており、`01`の`textGenerationId`は使いません。\n\n## API 2: Discard draft\n\n`{{discardGenerationId}}`で指定した下書きを破棄するAPIです。Postmanは空のJSON `{}`を送りますが、実装はBodyを参照しません。成功すると`entry`、`generation`、`cards`を返し、状態は`discarded`になります。DBではGenerationの`status`を更新し、`error`を消します。Entry、Generation、Cardの行は削除しません。OpenAI呼び出しや利用量記録も発生しません。自分のGenerationでなければ404、破棄後にTranslateすると409です。やり直す場合はAPI 1から新しい下書きを作ります。\n\n---\n\nThis two-step flow mirrors choosing Start over after reviewing the Japanese card split. The first API creates a draft for inspection, and the second discards it without translation.\n\n## Flow\n\n1. Call `POST /functions/v1/api/generations` with `mode: split` and `source: text`.\n2. Review `cards[].ja`; `cards[].en` is `null` at this stage.\n3. Call `POST /functions/v1/api/generations/{{discardGenerationId}}/discard`.\n4. Confirm that `generation.status` is `discarded`.\n\n## API 1: Create draft to discard\n\nThis API creates a Japanese draft specifically for demonstrating the discard action. Its input and core behavior match API 1 in `01`: it sends `mode: split`, `source: text`, Japanese text, and split settings. A pre-request script creates a discard-specific `idempotencyKey`; after checking the daily limit, the API uses OpenAI for splitting. It returns `entry`, a `split` generation, and Japanese-only `cards`, stores the draft in the database, and saves the ID as `discardGenerationId`. This scenario is independent and does not use `textGenerationId` from `01`.\n\n## API 2: Discard draft\n\nThis API discards the draft identified by `{{discardGenerationId}}`. Postman sends an empty JSON object, but the implementation does not read the body. It returns `entry`, `generation`, and `cards` with status `discarded`. In the database, it updates the generation status and clears its error while retaining the entry, generation, and card rows. It makes no OpenAI call and records no usage event. A generation owned by another user returns 404, and translating a discarded generation returns 409. Starting over requires a new draft from API 1.",
+      "item": [
+        {
+          "name": "1. Create draft to discard",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('idempotencyKey', 'postman-discard-' + Date.now());"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('破棄用下書きが作成される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "const json = pm.response.json();",
+              "pm.expect(json.generation.status).to.eql('split');",
+              "pm.environment.set('discardGenerationId', json.generation.id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{idempotencyKey}}\",\n  \"mode\": \"split\",\n  \"source\": \"text\",\n  \"rawText\": \"今日は少し疲れたので、早めに寝ることにした。\",\n  \"cleanText\": \"今日は少し疲れたので、早めに寝ることにした。\",\n  \"isEdited\": false,\n  \"splitPolicy\": \"small_steps\",\n  \"translationStyle\": \"simple\",\n  \"transcript\": [],\n  \"waveform\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{supabaseUrl}}/functions/v1/api/generations",
+            "description": "## 目的\n\n英訳せずに破棄するための日本語カード下書きを作ります。実アプリで分割結果を見て「やり直す」を選ぶ直前の状態を再現します。\n\n## 成功時\n\n`generation.status`は`split`、`cards[].en`は`null`です。Test scriptがIDを`discardGenerationId`へ保存します。\n\n## 次の操作\n\n`cards[].ja`を確認した後、次のDiscard Requestを送ります。このRequestを再送すると、新しいidempotency keyで別の下書きを作ります。\n\n---\n\n## Purpose\n\nCreate a Japanese draft that will be discarded without translation. It reproduces the state immediately before choosing Start over in the app.\n\n## On success\n\n`generation.status` is `split`, and `cards[].en` is `null`. The test script saves the ID as `discardGenerationId`.\n\n## Next step\n\nReview `cards[].ja`, then send the next discard request. Sending this request again creates a separate draft with a new idempotency key."
+          }
+        },
+        {
+          "name": "2. Discard draft",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('下書きが破棄される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+            "const json = pm.response.json();",
+            "pm.expect(json.generation.status).to.eql('discarded');"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/functions/v1/api/generations/{{discardGenerationId}}/discard",
+            "description": "## 目的\n\n`discardGenerationId`で指定した下書きを、英訳せずに破棄します。\n\n## 成功時\n\nレスポンスの`generation.status`が`discarded`になります。Entry、Generation、Cardの行は削除されません。状態だけを変更します。\n\n## 注意\n\n破棄済みGenerationはTranslateできません。別のカードを作る場合は、前のRequestから新しい下書きを作成します。\n\n---\n\n## Purpose\n\nDiscard the draft identified by `discardGenerationId` without translating it.\n\n## On success\n\nThe response contains `generation.status: discarded`. The entry, generation, and card rows are retained; only the generation state changes.\n\n## Note\n\nA discarded generation cannot be translated. Create a new draft with the previous request when you want to start again."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Voice - Create cards",
+      "description": "# 03 Voice - Create cards\n\n実アプリで`Speak it`を押し、録音した日本語から英語カードを完成させるフローです。アプリでは録音停止後に2つのAPIが自動で順番に呼ばれます。\n\n## 処理順\n\n1. `POST /functions/v1/api/transcriptions`へ音声ファイルをmultipart/form-dataで送ります。\n2. 日本語の`rawText`、整形済み`cleanText`、単語ごとの`index`、本文、開始・終了時刻を持つ`words`を受け取ります。\n3. `POST /functions/v1/api/generations`を`mode: auto`、`source: voice`で呼び出します。\n4. サーバー内で日本語の分割と英訳を続けて実行し、`generation.status: completed`のカードを返します。\n\n## API 1: Transcriptions\n\nOpenAIへ日本語指定で音声文字起こしを依頼し、続けて話し言葉を自然な日本語へ整えます。音声ファイル自体はバックエンドのDBやStorageへ保存しません。Postmanでは送信前に`audio`へファイルを選びます。\n\n## API 2: Generations\n\n文字起こし結果と`words`を受け取り、OpenAIで日本語カード分割と英訳を実行します。完成した`entry`、`generation`、`cards`をDBへ保存します。アプリが持つwaveform peakをPostmanでは生成できないため、デモでは`waveform: []`を送ります。\n\n---\n\nThis scenario mirrors pressing `Speak it` and creating English cards from recorded Japanese speech. After recording stops, the app calls two APIs automatically in sequence.\n\n## Flow\n\n1. Send the audio file to `POST /functions/v1/api/transcriptions` as multipart/form-data.\n2. Receive Japanese `rawText`, cleaned `cleanText`, and `words` entries containing an index, word text, start time, and end time.\n3. Call `POST /functions/v1/api/generations` with `mode: auto` and `source: voice`.\n4. The server splits the Japanese text and translates the cards in sequence, returning a `completed` generation.\n\n## API 1: Transcriptions\n\nOpenAI transcribes the audio with Japanese language settings, then cleans the spoken text into natural Japanese. The backend does not store the audio file in its database or Storage. Select a file in the `audio` field before sending from Postman.\n\n## API 2: Generations\n\nThe API receives the transcription and `words`, then uses OpenAI to split the Japanese text and translate the cards. It saves the completed `entry`, `generation`, and `cards` rows. Postman sends `waveform: []` because it does not generate the waveform peaks captured by the app.",
+      "item": [
+        {
+          "name": "1. Transcribe Japanese audio",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('日本語音声が文字起こしされる', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+            "const json = pm.response.json();",
+            "pm.expect(json.rawText).to.be.a('string').and.not.empty;",
+            "pm.expect(json.cleanText).to.be.a('string').and.not.empty;",
+            "pm.expect(json.words).to.be.an('array');",
+            "pm.environment.set('transcriptRawText', json.rawText);",
+            "pm.environment.set('transcriptCleanText', json.cleanText);",
+            "pm.environment.set('transcriptWords', JSON.stringify(json.words));"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" }
+            ],
+            "body": { "mode": "formdata", "formdata": [{ "key": "audio", "type": "file", "src": [] }] },
+            "url": "{{supabaseUrl}}/functions/v1/api/transcriptions",
+            "description": "## 目的\n\n録音した日本語音声を文字起こしし、カード生成に使える自然な日本語へ整えます。\n\n## 入力\n\nBodyのform-data `audio`へ日本語音声ファイルを設定します。アプリでは録音停止時に作られたm4aファイルを送ります。\n\n## 成功時\n\n- `rawText`: 音声認識の原文\n- `cleanText`: 意味を保って整えた日本語\n- `words`: `index`、単語本文、開始時刻、終了時刻\n\nTest scriptはこれらを`transcriptRawText`、`transcriptCleanText`、`transcriptWords`へ保存します。\n\n## 副作用\n\nOpenAIの音声文字起こしと日本語整形を呼び出します。音声ファイル自体はバックエンドへ永続保存しません。\n\n---\n\n## Purpose\n\nTranscribe recorded Japanese speech and clean it into natural Japanese suitable for card generation.\n\n## Input\n\nSelect a Japanese audio file in the form-data `audio` field. The app sends the m4a file created when recording stops.\n\n## On success\n\n- `rawText`: raw speech recognition result\n- `cleanText`: cleaned Japanese that preserves the original meaning\n- `words`: `index`, word text, start timestamp, and end timestamp\n\nThe test script saves them as `transcriptRawText`, `transcriptCleanText`, and `transcriptWords`.\n\n## Side effects\n\nThe request calls OpenAI for audio transcription and Japanese cleanup. The backend does not persist the audio file itself."
+          }
+        },
+        {
+          "name": "2. Generate cards from transcription",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "const words = JSON.parse(pm.environment.get('transcriptWords') || '[]');",
+              "pm.variables.set('voiceGenerationBody', JSON.stringify({",
+              "  idempotencyKey: 'postman-voice-' + Date.now(), mode: 'auto', source: 'voice',",
+              "  rawText: pm.environment.get('transcriptRawText'), cleanText: pm.environment.get('transcriptCleanText'),",
+              "  isEdited: false, splitPolicy: 'small_steps', translationStyle: 'simple', transcript: words, waveform: []",
+              "}));"
+            ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('音声から英語カードが作成される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+              "const json = pm.response.json();",
+              "pm.expect(json.generation.status).to.eql('completed');",
+              "pm.expect(json.cards).to.be.an('array').that.is.not.empty;",
+              "json.cards.forEach((card) => { pm.expect(card.ja).to.be.a('string').and.not.empty; pm.expect(card.en).to.be.a('string').and.not.empty; });",
+              "pm.environment.set('voiceGenerationId', json.generation.id);",
+              "pm.environment.set('entryId', json.entry.id);",
+              "pm.environment.set('reviewCardId', json.cards[0].id);",
+              "pm.environment.set('reviewBaseline', JSON.stringify(json.cards[0]));"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{{voiceGenerationBody}}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/functions/v1/api/generations",
+            "description": "## 目的\n\n直前の文字起こし結果から、日本語カードの分割と英訳を一括実行します。実アプリでは文字起こし後に自動で呼ばれます。\n\n## 主な入力\n\n- `mode: auto`: splitとtranslateをサーバー内で連続実行\n- `source: voice`: 音声由来として保存\n- `rawText`、`cleanText`: 直前の文字起こし結果\n- `transcript`: 単語時刻の配列\n- `waveform: []`: Postmanでは波形を生成しないため空\n\n## 成功時\n\n`generation.status`は最初から`completed`で返ります。`cards[].ja`に日本語、`cards[].en`に英語が入り、音声位置を特定できるカードにはword/audio範囲も保存されます。\n\n## 副作用\n\nOpenAIで分割と英訳を行い、`entries`、`generations`、`cards`へ完成結果を保存します。\n\n---\n\n## Purpose\n\nSplit the previous transcription into Japanese cards and translate them in one request. The app calls this automatically after transcription.\n\n## Main input\n\n- `mode: auto`: run split and translate sequentially on the server\n- `source: voice`: store the entry as voice input\n- `rawText`, `cleanText`: values from the transcription response\n- `transcript`: word timestamp array\n- `waveform: []`: empty because Postman does not generate waveform peaks\n\n## On success\n\nThe response already has `generation.status: completed`. `cards[].ja` contains Japanese, `cards[].en` contains English, and cards with identifiable audio positions include word/audio ranges.\n\n## Side effects\n\nThe request calls OpenAI for splitting and translation, then saves the completed `entries`, `generations`, and `cards` data."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Review",
+      "description": "# 04 Review\n\n完成済みカードを練習した後の記録と、誤操作を取り消す流れです。先に`01`のAPI 2または`03`のAPI 2を成功させ、`reviewCardId`を用意します。API 1で復習結果を保存し、必要な場合だけAPI 2で直前の復習をUndoします。\n\n## 処理順\n\n1. `POST /functions/v1/api/cards/{{reviewCardId}}/reviews`へ`rating: good`または`again`を送ります。\n2. 復習履歴が追加され、カードのSRS状態、連続成功数、次回期限などが更新されます。\n3. 記録を間違えた場合だけ`POST /functions/v1/api/cards/{{reviewCardId}}/reviews/undo`を呼び出します。\n4. Undoは直前の有効なReviewを取り消し、残っている履歴からカード状態を再計算します。\n\n## API 1: Review selected card\n\n`{{reviewCardId}}`で指定したカードの復習結果を保存するAPIです。Bodyの`rating: good`は「言えた・覚えていた」、`rating: again`は「もう一度練習したい」を表します。成功すると`{ card: updatedCard }`を返します。DBでは`review_events`へ履歴を1件追加し、カードの`reviewCount`、`successStreak`、`srsStatus`、`lastReviewedAt`、`dueAt`を更新します。`good`では既知扱いと連続成功数が進み、`again`では学習中へ戻って連続成功数が0になります。OpenAIは呼び出しません。通常の復習フローはこのAPIで完了します。\n\n## API 2: Undo latest review\n\n同じカードに対する直前の有効なReviewを取り消すAPIです。Postmanは空のBody `{}`を送りますが、実装は参照しません。履歴行は削除せず、最新の有効な`review_events`へ`undone_at`を設定します。その後、残る有効な履歴を古い順に再生し、カードのSRS状態を再計算して`{ card: updatedCard }`を返します。Test scriptはAPI 1前の状態へ戻ったことも確認します。OpenAIは呼び出しません。取り消せるReviewがない場合や、同じReviewを2回Undoした場合は404です。\n\n---\n\nThis flow records practice for a completed card and optionally reverses an accidental review. First complete API 2 in `01` or `03` so that `reviewCardId` is available. API 1 saves the result, and API 2 is used only when the latest review must be undone.\n\n## Flow\n\n1. Send `rating: good` or `again` to `POST /functions/v1/api/cards/{{reviewCardId}}/reviews`.\n2. The API appends review history and updates the card's SRS status, success streak, and next due date.\n3. Only after an accidental review, call `POST /functions/v1/api/cards/{{reviewCardId}}/reviews/undo`.\n4. Undo reverses the latest active review and recalculates the card from the remaining history.\n\n## API 1: Review selected card\n\nThis API saves a review result for the card identified by `{{reviewCardId}}`. In the body, `rating: good` means successful recall, while `rating: again` means more practice is needed. It returns `{ card: updatedCard }`. In the database, it appends one `review_events` row and updates `reviewCount`, `successStreak`, `srsStatus`, `lastReviewedAt`, and `dueAt`. `good` advances the known state and streak; `again` returns the card to learning and resets the streak to zero. It does not call OpenAI. The normal review flow ends here.\n\n## API 2: Undo latest review\n\nThis API reverses the latest active review for the same card. Postman sends an empty body `{}`, which the implementation ignores. It does not delete the history row; it sets `undone_at` on the latest active `review_events` row, replays the remaining active events in chronological order, recalculates the card, and returns `{ card: updatedCard }`. The test script also checks that the pre-review baseline is restored. It does not call OpenAI. No active review, including a second undo of the same review, returns 404.",
+      "item": [
+        {
+          "name": "Review selected card",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('レビューが保存される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+            "const json = pm.response.json();",
+            "pm.expect(json.card.id).to.eql(pm.environment.get('reviewCardId'));",
+            "pm.expect(json.card.reviewCount).to.be.above(0);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": \"good\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/functions/v1/api/cards/{{reviewCardId}}/reviews",
+            "description": "## 目的\n\n`reviewCardId`で指定したカードの復習結果を保存し、次回の出題状態を更新します。\n\n## 入力\n\n- `rating: good`: 言えた、覚えていた\n- `rating: again`: もう一度練習したい\n\n## 成功時\n\n`review_events`へ履歴が1件追加されます。カードの`reviewCount`、`successStreak`、`srsStatus`、`lastReviewedAt`、`dueAt`が再計算され、更新後の`card`が返ります。\n\n## 次の操作\n\n通常はここで完了です。操作を間違えた場合だけUndoを送ります。\n\n---\n\n## Purpose\n\nSave a review result for the card identified by `reviewCardId` and update its next-practice state.\n\n## Input\n\n- `rating: good`: the user recalled or said the card successfully\n- `rating: again`: the user wants to practice it again\n\n## On success\n\nThe API appends one `review_events` row. It recalculates `reviewCount`, `successStreak`, `srsStatus`, `lastReviewedAt`, and `dueAt`, then returns the updated `card`.\n\n## Next step\n\nThe normal flow ends here. Send Undo only when the review was recorded by mistake."
+          }
+        },
+        {
+          "name": "Undo latest review",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('直前のレビューが取り消される', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+            "const json = pm.response.json();",
+            "pm.expect(json.card.id).to.eql(pm.environment.get('reviewCardId'));",
+            "const baseline = JSON.parse(pm.environment.get('reviewBaseline'));",
+            "['srsStatus', 'reviewCount', 'successStreak', 'lastReviewedAt', 'dueAt'].forEach((key) => pm.expect(json.card[key]).to.deep.eql(baseline[key]));"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{apikey}}", "type": "text" },
+              { "key": "Authorization", "value": "Bearer {{bearerToken}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } },
+            "url": "{{supabaseUrl}}/functions/v1/api/cards/{{reviewCardId}}/reviews/undo",
+            "description": "## 目的\n\n対象カードの直前の有効なReviewを取り消します。\n\n## 処理\n\n最新の`review_events`を削除せず、`undone_at`を設定します。その後、取り消されていない履歴を古い順に再生し、カードのSRS状態を再計算します。\n\n## 成功時\n\n更新後の`card`が返ります。Test scriptはReview前に保存した`reviewBaseline`と主要な学習状態が一致することを確認します。\n\n## エラー\n\n取り消せるReviewがない場合は404です。同じReviewに対してUndoを2回送信できません。\n\n---\n\n## Purpose\n\nUndo the latest active review for the selected card.\n\n## Behavior\n\nThe API does not delete the latest `review_events` row. It sets `undone_at`, then replays the remaining active history in chronological order to recalculate the card's SRS state.\n\n## On success\n\nThe updated `card` is returned. The test script compares its main learning-state fields with `reviewBaseline`, captured before the review.\n\n## Errors\n\nThe API returns 404 when no active review can be undone. The same review cannot be undone twice."
+          }
+        }
+      ]
+    }
+  ]
+}

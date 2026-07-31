@@ -138,17 +138,15 @@
 
 ### 4.1 リポジトリ構成(npm workspaces モノレポ)
 
-現行はアプリ直下に Supabase もぶら下がる単一パッケージ。契約共有のため、以下のワークスペース構成に改める。
+Expo アプリはルートに維持しつつ、契約と純粋ロジックを共有パッケージとして切り出す。
 
 ```
 just-speak-it/
-├── package.json                  # workspaces: ["apps/*", "packages/*"]
-├── apps/
-│   └── mobile/                   # Expo アプリ(現 src/ 相当)
-│       ├── app/                  # expo-router(ルーティングのみ、薄く)
-│       ├── features/             # 機能単位のコード(§6.1)
-│       ├── shared/               # ui / audio / theme / api クライアント
-│       └── labs/                 # 実験コード退避場所(本番から import 禁止)
+├── package.json                  # Expo アプリ兼 workspaces ルート
+├── app/                          # expo-router(ルーティングのみ、薄く)
+├── features/                     # 機能単位のコード(§6.1)
+├── shared/                       # ui / audio / theme / api クライアント
+├── labs/                         # 実験コード退避場所(本番から import 禁止)
 ├── packages/
 │   ├── contract/                 # ★ Zod による API 契約(両側から import)
 │   └── core/                     # ★ 純粋ロジック(SRS計算・波形・テキスト整形)
@@ -437,7 +435,7 @@ export function isDue(state: SrsState, now: Date): boolean { ... }
 ### 6.1 ディレクトリ構成(feature-based)
 
 ```
-apps/mobile/
+just-speak-it/
 ├── app/                          # expo-router。各ファイルは 20 行以下の「配線」のみ
 │   ├── _layout.tsx
 │   └── (tabs)/
@@ -594,7 +592,7 @@ Web はサポートしない(iOS / Android ネイティブのみ)。以下を Ph
 .github/workflows/ci.yml(PR ごと):
   - npm ci
   - lint(expo lint + hex 禁止ルール)
-  - tsc --noEmit(apps/mobile, packages/*)
+  - tsc --noEmit(ルート Expo アプリ, packages/*)
   - vitest(core, contract)
   - deno test(supabase/functions)
   - 契約整合チェック: supabase start(CI 内 Docker)→ db reset → `supabase gen types` の出力が
@@ -636,7 +634,7 @@ Web はサポートしない(iOS / Android ネイティブのみ)。以下を Ph
 
 ### Phase 0: 基盤整備(2〜3 日)
 
-- モノレポ化(npm workspaces)、`apps/mobile` へ移設、`packages/contract` / `packages/core` の雛形作成。
+- `packages/contract` / `packages/core` を npm workspaces として追加し、Expo アプリはルートに維持する。
 - **依存パッケージの整理**: §10「依存パッケージの増減」の削除リストを全てアンインストールし、関連ファイル(`postcss.config.mjs` / `nativewind-env.d.ts` / `src/global.css` / `src/tw/` / `.web.*`)と `package.json` の `overrides.lightningcss` を削除。追加リスト(TanStack Query / Zod / Sentry 等)を導入。
 - Tailwind/NativeWind 系の撤去(§6.4)と、撤去後の iOS 実機ビルド確認。
 - Web 対応の撤去(§6.7): `react-native-web` / `react-dom` / `.web.*` ファイル / `web` スクリプト・設定の削除。

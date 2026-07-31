@@ -1,0 +1,1106 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Just Speak It API",
+    "version": "1.0.0",
+    "description": "OpenAPI contract for the write-side Supabase Edge Function `api` used by Just Speak It. Read models are served through Supabase PostgREST, so this specification focuses on generation, transcription, and review mutation endpoints.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "{supabaseUrl}/functions/v1/api",
+      "description": "Supabase hosted project",
+      "variables": {
+        "supabaseUrl": {
+          "default": "https://PROJECT_REF.supabase.co",
+          "description": "Same value as EXPO_PUBLIC_SUPABASE_URL"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "SupabaseApiKey": [],
+      "SupabaseBearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Transcriptions",
+      "description": "APIs for turning audio into Japanese text"
+    },
+    {
+      "name": "Generations",
+      "description": "APIs for generating English practice cards from Japanese text"
+    },
+    {
+      "name": "Reviews",
+      "description": "APIs for updating review results and SRS state"
+    }
+  ],
+  "paths": {
+    "/transcriptions": {
+      "post": {
+        "tags": [
+          "Transcriptions"
+        ],
+        "operationId": "transcribeAudio",
+        "summary": "Transcribe an audio file",
+        "description": "Sends an audio file to OpenAI transcription and returns the Japanese rawText, cleaned cleanText, and word timestamps. The audio file itself is not stored in the database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "audio"
+                ],
+                "properties": {
+                  "audio": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Audio file up to 25MB. The app sends daily-recording.m4a."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "rawText": "えーと、今日は図書館で勉強しました。",
+                      "cleanText": "今日は図書館で勉強しました。",
+                      "words": [
+                        {
+                          "index": 0,
+                          "word": "今日は",
+                          "start": 0.4,
+                          "end": 0.8
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/AiProviderFailure"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/generations": {
+      "post": {
+        "tags": [
+          "Generations"
+        ],
+        "operationId": "createGeneration",
+        "summary": "Start English card generation",
+        "description": "`mode: auto` runs splitting and translation in one request. `mode: split` only creates the Japanese draft cards. If `idempotencyKey` already exists, the endpoint returns the existing generation result.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGenerationRequest"
+              },
+              "examples": {
+                "textSplit": {
+                  "summary": "Create draft cards from text input",
+                  "value": {
+                    "idempotencyKey": "text-20260708-001",
+                    "mode": "split",
+                    "source": "text",
+                    "rawText": "今日は図書館で勉強しました。帰りに友達とコーヒーを飲みました。",
+                    "cleanText": "今日は図書館で勉強しました。帰りに友達とコーヒーを飲みました。",
+                    "isEdited": false,
+                    "splitPolicy": "small_steps",
+                    "translationStyle": "simple",
+                    "transcript": [],
+                    "waveform": []
+                  }
+                },
+                "voiceAuto": {
+                  "summary": "Create translations after voice input",
+                  "value": {
+                    "idempotencyKey": "voice-20260708-001",
+                    "mode": "auto",
+                    "source": "voice",
+                    "rawText": "えーと、今日は図書館で勉強しました。",
+                    "cleanText": "今日は図書館で勉強しました。",
+                    "isEdited": false,
+                    "splitPolicy": "small_steps",
+                    "translationStyle": "simple",
+                    "transcript": [
+                      {
+                        "index": 0,
+                        "word": "今日は",
+                        "start": 0.4,
+                        "end": 0.8
+                      }
+                    ],
+                    "waveform": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation bundle. With `mode: split`, generation.status is `split`. With `mode: auto`, it is usually `completed`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/AiProviderFailure"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/generations/{id}/translate": {
+      "post": {
+        "tags": [
+          "Generations"
+        ],
+        "operationId": "translateGeneration",
+        "summary": "Translate a draft",
+        "description": "Claims a generation in `split` state, saves the English card translations, and marks it as `completed`. If the generation is already `completed`, the existing bundle is returned.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GenerationId"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslateGenerationRequest"
+              },
+              "examples": {
+                "simple": {
+                  "value": {
+                    "translationStyle": "simple"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation bundle after translation completes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationBundle"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/AiProviderFailure"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/generations/{id}/discard": {
+      "post": {
+        "tags": [
+          "Generations"
+        ],
+        "operationId": "discardGeneration",
+        "summary": "Discard a draft",
+        "description": "Marks the specified generation as `discarded` and returns the bundle after discarding.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GenerationId"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false
+              },
+              "examples": {
+                "empty": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation bundle after discarding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationBundle"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/cards/{id}/reviews": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "operationId": "reviewCard",
+        "summary": "Save a card review result",
+        "description": "Appends a review event and returns the card after updating its derived SRS state.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CardId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              },
+              "examples": {
+                "good": {
+                  "value": {
+                    "rating": "good"
+                  }
+                },
+                "again": {
+                  "value": {
+                    "rating": "again"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated card",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/cards/{id}/reviews/undo": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "operationId": "undoReview",
+        "summary": "Undo the latest review",
+        "description": "Marks the latest non-undone review event with `undone_at` and recalculates SRS state from the remaining review history.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CardId"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false
+              },
+              "examples": {
+                "empty": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Card after undo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "SupabaseApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "apikey",
+        "description": "Supabase publishable key"
+      },
+      "SupabaseBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase Auth access token"
+      }
+    },
+    "parameters": {
+      "GenerationId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "generations.id",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "CardId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "cards.id",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid input",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "badRequest": {
+                "value": {
+                  "error": {
+                    "code": "bad_request",
+                    "message": "validation error",
+                    "userMessage": "Please check your input."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "unauthorized": {
+                "value": {
+                  "error": {
+                    "code": "unauthorized",
+                    "message": "Authorization header is missing.",
+                    "userMessage": "Could not verify your login session."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "notFound": {
+                "value": {
+                  "error": {
+                    "code": "not_found",
+                    "message": "Not found",
+                    "userMessage": "API not found."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "The operation cannot be completed in the current state",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "conflict": {
+                "value": {
+                  "error": {
+                    "code": "conflict",
+                    "message": "This draft cannot be translated in its current state.",
+                    "userMessage": "This draft cannot be translated in its current state."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Daily usage limit reached",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "rateLimited": {
+                "value": {
+                  "error": {
+                    "code": "rate_limited",
+                    "message": "daily limit exceeded",
+                    "userMessage": "You have reached today's generation limit."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AiProviderFailure": {
+        "description": "External AI provider failure, such as OpenAI",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            },
+            "examples": {
+              "openAiFailed": {
+                "value": {
+                  "error": {
+                    "code": "openai_failed",
+                    "message": "provider error",
+                    "userMessage": "AI generation failed."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ApiError": {
+        "description": "Common error envelope",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "TranscriptWord": {
+        "type": "object",
+        "required": [
+          "index",
+          "word",
+          "start",
+          "end"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "start": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "EntrySource": {
+        "type": "string",
+        "enum": [
+          "voice",
+          "text"
+        ]
+      },
+      "SplitPolicy": {
+        "type": "string",
+        "enum": [
+          "meaning_unit",
+          "small_steps"
+        ],
+        "description": "Required card-splitting policy. The API does not apply a default."
+      },
+      "TranslationStyle": {
+        "type": "string",
+        "enum": [
+          "native",
+          "simple"
+        ],
+        "default": "simple"
+      },
+      "GenerationStatus": {
+        "type": "string",
+        "enum": [
+          "split",
+          "translating",
+          "completed",
+          "failed",
+          "discarded"
+        ]
+      },
+      "SrsStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "learning",
+          "known"
+        ]
+      },
+      "ReviewRating": {
+        "type": "string",
+        "enum": [
+          "again",
+          "good"
+        ]
+      },
+      "Entry": {
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "rawText",
+          "cleanText",
+          "isEdited",
+          "summary",
+          "transcript",
+          "waveform",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source": {
+            "$ref": "#/components/schemas/EntrySource"
+          },
+          "rawText": {
+            "type": "string"
+          },
+          "cleanText": {
+            "type": "string"
+          },
+          "isEdited": {
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transcript": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptWord"
+            }
+          },
+          "waveform": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenerationError": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": [
+              "split",
+              "translate",
+              "transcribe",
+              "review"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Generation": {
+        "type": "object",
+        "required": [
+          "id",
+          "entryId",
+          "idempotencyKey",
+          "splitPolicy",
+          "translationStyle",
+          "status",
+          "error",
+          "modelInfo",
+          "claimedAt",
+          "completedAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
+          "splitPolicy": {
+            "$ref": "#/components/schemas/SplitPolicy"
+          },
+          "translationStyle": {
+            "$ref": "#/components/schemas/TranslationStyle"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GenerationStatus"
+          },
+          "error": {
+            "type": "object",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenerationError"
+              }
+            ]
+          },
+          "modelInfo": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "claimedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "required": [
+          "id",
+          "generationId",
+          "position",
+          "ja",
+          "en",
+          "wordStart",
+          "wordEnd",
+          "audioStartSec",
+          "audioEndSec",
+          "srsStatus",
+          "reviewCount",
+          "successStreak",
+          "lastReviewedAt",
+          "dueAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ja": {
+            "type": "string"
+          },
+          "en": {
+            "type": "string",
+            "nullable": true
+          },
+          "wordStart": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "wordEnd": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "audioStartSec": {
+            "type": "number",
+            "nullable": true
+          },
+          "audioEndSec": {
+            "type": "number",
+            "nullable": true
+          },
+          "srsStatus": {
+            "$ref": "#/components/schemas/SrsStatus"
+          },
+          "reviewCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "successStreak": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lastReviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenerationBundle": {
+        "type": "object",
+        "required": [
+          "entry",
+          "generation",
+          "cards"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/Entry"
+          },
+          "generation": {
+            "$ref": "#/components/schemas/Generation"
+          },
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Card"
+            }
+          }
+        }
+      },
+      "TranscriptionResponse": {
+        "type": "object",
+        "required": [
+          "rawText",
+          "cleanText",
+          "words"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rawText": {
+            "type": "string"
+          },
+          "cleanText": {
+            "type": "string"
+          },
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptWord"
+            }
+          }
+        }
+      },
+      "CreateGenerationRequest": {
+        "type": "object",
+        "required": [
+          "idempotencyKey",
+          "mode",
+          "source",
+          "rawText",
+          "cleanText",
+          "splitPolicy"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "idempotencyKey": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Returns the existing generation bundle when the same key is reused"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "split"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/EntrySource"
+          },
+          "rawText": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "cleanText": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "isEdited": {
+            "type": "boolean",
+            "default": false
+          },
+          "splitPolicy": {
+            "$ref": "#/components/schemas/SplitPolicy"
+          },
+          "translationStyle": {
+            "$ref": "#/components/schemas/TranslationStyle"
+          },
+          "transcript": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptWord"
+            },
+            "default": []
+          },
+          "waveform": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "default": []
+          }
+        }
+      },
+      "TranslateGenerationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "translationStyle": {
+            "$ref": "#/components/schemas/TranslationStyle"
+          }
+        }
+      },
+      "ReviewRequest": {
+        "type": "object",
+        "required": [
+          "rating"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rating": {
+            "$ref": "#/components/schemas/ReviewRating"
+          }
+        }
+      },
+      "ReviewResponse": {
+        "type": "object",
+        "required": [
+          "card"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "card": {
+            "$ref": "#/components/schemas/Card"
+          }
+        }
+      },
+      "ApiErrorEnvelope": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "userMessage"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "userMessage": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -43,3 +43,9 @@ example
 # generated native folders
 /ios
 /android
+/tmp/
+
+# Postmanの個人workspace同期・実値入り環境
+/.postman/
+/postman/
+*.postman_environment.local.json

@@ -15,6 +15,8 @@
 - React Native
 - Supabase
 - OpenAI API
+- TanStack Query
+- Zod
 
 ## 開発
 
@@ -23,7 +25,7 @@ npm install
 npm run start
 ```
 
-環境変数は `.env.local` に設定します。
+アプリの環境変数はルートの `.env.local` に設定します。
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=
@@ -31,7 +33,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 Edge Functions 側には `OPENAI_API_KEY` を設定します。テキスト生成モデルを変える場合は
-`OPENAI_TEXT_MODEL` も設定できます。
+`OPENAI_TEXT_MODEL`、文字起こしモデルを変える場合は `OPENAI_STT_MODEL` も設定できます。
 
 Supabase の DB 反映は hosted project に対して行います。DB パスワードは repo 外の secret file から環境変数として読み込んでください。
 
@@ -56,8 +58,9 @@ npm run functions:deploy
 
 ## DB/API 契約
 
-- `diary_entries`: 原文、整形済み本文、箇条書き、音声 word timestamp、waveform を保持します。
-- `practice_generations`: Split/Translate の生成単位です。`client_request_id` と `status` で復元・冪等性・破棄を管理します。
-- `translation_cards`: 日本語/英語カード、音声 timestamp、復習状態を保持します。
-- アプリからの insert/update/delete は基本的に Edge Function または RPC 経由です。通常のクライアント権限は select を中心にします。
-- schema 世代が変わると、アプリ起動時に古い匿名セッション、旧復習状態、端末内録音 index/files を自動クリアします。
+- `entries`: 原文、整形済み本文、箇条書き、音声 word timestamp、waveform を保持します。
+- `generations`: Split/Translate の生成単位です。`idempotency_key` と `status` で復元・冪等性・破棄を管理します。
+- `cards`: 日本語/英語カード、音声 timestamp、SRS の導出状態を保持します。
+- `review_events`: 復習履歴を追記し、Undo は `undone_at` で打ち消します。
+- `usage_events`: OpenAI 呼び出しと利用回数制限の基盤です。
+- アプリからの insert/update/delete は単一 Edge Function `api` 経由です。通常のクライアント権限は select のみに寄せます。
