@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { useSettings } from '@/features/settings/settings-store';
 import { createGeneration, discardGeneration, formatApiError, transcribeAudio, translateGeneration } from '@/shared/api/client';
 import { qk } from '@/shared/api/query-keys';
 import { useLatestPendingGeneration, useReviewQueue } from '@/shared/api/read-models';
+import { subscribeToUserDataReset } from '@/shared/api/user-data-reset';
 import { MaxContentWidth, Spacing } from '@/shared/legacy/theme';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { GlideButton } from '@/shared/legacy/ui/glide-button';
@@ -34,6 +35,14 @@ export function CaptureScreen() {
   const [text, setText] = useState('');
   const mode = readMode(state);
   const busy = state.phase === 'recording' || state.phase === 'transcribing' || state.phase === 'generating';
+
+  useEffect(() => {
+    return subscribeToUserDataReset(() => {
+      dispatch({ type: 'RESET' });
+      setText('');
+    });
+  }, []);
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const cleanText = text.trim();

@@ -418,6 +418,27 @@ app.post('/cards/:id/reviews/undo', async (c) => {
   return json(c, { card: updated });
 });
 
+app.post('/developer/data/reset', async (c) => {
+  const db = c.get('db');
+  const userId = c.get('userId');
+  const [entriesResult, usageEventsResult] = await Promise.all([
+    db.from('entries').delete().eq('user_id', userId),
+    db.from('usage_events').delete().eq('user_id', userId),
+  ]);
+  const error = entriesResult.error ?? usageEventsResult.error;
+
+  if (error) {
+    throw new ApiError(
+      'data_delete_failed',
+      error.message,
+      'データを削除できませんでした。',
+      500
+    );
+  }
+
+  return json(c, { deleted: true });
+});
+
 app.notFound((c) => json(c, { error: { code: 'not_found', message: 'Not found', userMessage: 'APIが見つかりません。' } }, 404));
 
 app.onError((error, c) => {

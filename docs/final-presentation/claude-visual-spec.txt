@@ -1,0 +1,294 @@
+================================================================================
+JUST SPEAK IT — 最終試験プレゼン VISUAL SPEC (v1)
+担当: claude(ビジュアルデザイン一切) / 実装: codex(PPTX)
+前提: docs/final-presentation/build/content-plan.txt の10枚構成+Appendix 2枚
+================================================================================
+
+--------------------------------------------------------------------------------
+0. 座標系と共通ルール
+--------------------------------------------------------------------------------
+- スライドサイズ: 16:9 = 13.333 x 7.5 inch = 960 x 540 pt。本書の座標・寸法は
+  すべて pt、原点は左上。python-pptx では Pt() でそのまま指定できる。
+- 画像はすべて docs/final-presentation/assets/ 配下。等比でのみ拡縮する
+  (非等比変形・再着色・回転は禁止)。
+- SVG 正本は assets/src/。再生成は `rsvg-convert -z 2 src/X.svg -o X.png`
+  (背景3種のみ -z 1)。
+
+--------------------------------------------------------------------------------
+1. アートディレクション「INK & MINT」
+--------------------------------------------------------------------------------
+方向: アプリ UI をそのままスライドへ拡張する。「紙のカードがインクの土台の上に
+浮いている」というアプリの視覚文法(太いインク輪郭 / 右下オフセットの土台 /
+ミントのアクセント / ピル+ルールのヘッダ)を、スライドの構造そのものにする。
+テンプレ感のあるグラデーション・影・立体アイコンは一切使わない。影は常に
+「ベタ塗りインクのオフセット土台」で表現する。
+
+トーン: 遊び心はあるが、審査用として構造は厳格。1スライド=1メッセージ。
+余白を多く、要素は少なく、輪郭は太く。
+
+--------------------------------------------------------------------------------
+2. カラートークン(アプリ実装と同値)
+--------------------------------------------------------------------------------
+ink        #111111   輪郭・本文・土台
+paper      #F8F6EF   コンテンツスライド背景(bg-paper.png)
+white      #FFFFFF   カード面
+cream      #FFF6E7   サブカード面
+mint       #2FDD6C   主アクセント(ブランド色。S10背景、強調カード、ピル)
+blue       #276EF1   タイトル背景・api カード(白文字可の唯一の有彩色)
+amber      #FFE2A6   復習/データ系の面
+coral      #FF7661   「Again」系のみ(多用禁止)
+violet     #9B7CFF   AI/OpenAI 系の面
+sky        #9FD0F8   読取/RLS 系の面
+foundation #D9E7E1   紙カード用の淡い土台(通常はinkの土台を優先)
+accentDeep #168A73   補助テキスト(paper上の小さな強調)
+mutedInk   ink 66%   リード文・キャプション
+
+コントラスト規則(厳守):
+- 白文字を置いてよいのは blue と ink の上だけ。
+- mint / amber / sky / coral / violet / cream / paper の上は必ず ink 文字。
+
+--------------------------------------------------------------------------------
+3. タイポグラフィ
+--------------------------------------------------------------------------------
+- 欧文: Avenir Next(見出し Bold + さらに太く見せたい所は Heavy 相当で bold指定、
+  本文 Medium)。無い環境では Arial。
+- 和文(S4の例文など最小限): Hiragino Sans(見出し W8 / 本文 W5)。
+- 数字はできるだけ等幅設定(スライド番号・時間表記)。
+
+スケール(pt):
+  D1 タイトルスライド題字  54  bold   字間 -1%
+  D2 スライドタイトル      26  bold   行送り 1.15(最大2行。1行なら28へ拡大可)
+  D3 セクション/カード見出し 18 bold
+  D4 本文                  14         行送り 1.3
+  D5 チップ/リスト         12.5-13
+  D6 ピル/キャプション     11  bold   大文字+字間 +8%(kicker)
+最小フォントは 11pt。これ未満を作らない。
+
+--------------------------------------------------------------------------------
+4. 視覚文法(再利用コンポーネント)
+--------------------------------------------------------------------------------
+[Card] 紙カード
+  角丸 12pt(大カードは 16pt)、輪郭 ink 2.5pt(ヒーローは 3pt)。
+  土台: 同形状を +4pt/+5pt(右/下)へ複製し ink でベタ塗り、最背面に置く。
+  ※土台のオフセット方向は全スライドで右下に統一。
+
+[Chip] 小カード・リスト行
+  角丸 8pt、輪郭 ink 1.75pt、土台オフセット +2.5pt/+3pt。
+
+[Pill] ラベル
+  完全角丸、高さ 24-28pt、輪郭 ink 1.75pt、左右パディング 12pt。
+  種類: kicker(ink面+白文字) / 番号(白面+ink文字) / タグ(トーン面+ink文字)。
+
+[Header] コンテンツスライド共通ヘッダ(S2-S9, A1, A2)
+  y=40 に配置: kickerピル(x=60) + ink 2.5pt の水平ルール(ピル右端+12pt から
+  x=856 まで、垂直中央) + 番号ピル(右端 x=900 に右揃え、幅44、"02" 等の2桁)。
+  ルールは線でなく高さ2.5ptの矩形で描くと確実。
+  スライドタイトル(D2)は x=60, y=78, 幅840。リード文(D4 mutedInk)は
+  タイトル下 8pt。
+
+[Screenshot frame] 実機スクショ(1290x2796)の額装
+  角丸 20pt で画像をクロップ(PPTXの角丸図形塗りつぶし or 角丸マスク)、
+  輪郭 ink 3pt、土台 +4pt/+5pt。標準幅 150pt(高さ自動で約325pt)。
+  ラベルはフレーム下 8pt に mint タグピル(高さ24、11pt bold)を中央揃え。
+
+[Waveform] アクセント
+  waveform-motif.png(ミントの5本バー)。飾りは1スライド1個まで。
+
+--------------------------------------------------------------------------------
+5. アセット一覧(docs/final-presentation/assets/)
+--------------------------------------------------------------------------------
+bg-title.png            1920x1080  S1 背景(blue+白ドット)
+bg-paper.png            1920x1080  S2-S9, A1, A2 背景(paper+inkドット)
+bg-mint.png             1920x1080  S10 背景(mint+inkドット)
+logo-lockup.png         1040x1040  フラット版アプリマーク(吹き出し+波形+ink土台)
+waveform-motif.png      688x440    波形モチーフ(飾り用)
+flow-loop.png           3520x1280  S4 用 6ステップ図(serpentine配列)
+architecture-simple.png 3360x1800  S8 用 簡易アーキテクチャ図
+architecture-detailed.png 3520x1960 A2 用 詳細図(paper背景を含む)
+srs-intervals.png       2000x600   S7 用 実間隔(3/7/14/30/60日)バー図
+05-phrases.png          1290x2796  実機: フレーズ一覧
+07-review-answer.png    1290x2796  実機: 復習回答(ヒーロー品質)
+08-notes.png            1290x2796  実機: ノート+波形
+09-custom.png           1290x2796  実機: カスタム設定
+(依頼中) home idle / recording or text-entry / JP draft cards / completed cards
+※アプリ純正アイコン assets/images/icon.png(立体調)はスライドでは使わず、
+  フラットな logo-lockup.png に統一する(視覚文法が衝突するため)。
+
+--------------------------------------------------------------------------------
+6. スライド別スペック
+--------------------------------------------------------------------------------
+
+=== S1  TITLE ===  背景: bg-title.png
+中央軸(x=480)の縦積み構成。青地に白と紙だけで構成し、最初の3秒で
+「このプロダクトの色」を刷り込む。
+- logo-lockup.png: 幅150(高さ150)、中心x=480、y=80(上端)。
+- 題字 "Just Speak It": D1 54pt bold、白、中央揃え、ボックス x=130 y=248
+  w=700 h=66(1行)。
+- タグライン "Turn your own words into English you can speak.":
+  16pt、白(不透明度92%)、中央揃え、y=322。
+- ピル行(y=408、中央揃えで横並び、間隔16):
+  ピル1 白面+ink文字 "Final Project · Mobile App"
+  ピル2 mint面+ink文字 "Expo · Supabase · OpenAI"
+  いずれも高さ30、輪郭 ink 1.75pt(青地上でも ink 輪郭のまま)。
+- 任意オプション: home idle スクショが良品なら、右端 x=760 y=120 に幅140の
+  額装で置き、題字ブロックを x=90 起点の左寄せへ変更しても良い(codex判断)。
+  迷ったら中央構成を採る。
+
+=== S2  PROBLEM ===  背景: bg-paper.png
+- Header: kicker "PROBLEM" / 番号 "02"。
+- タイトル(D2): "Textbook English is not always what you want to say"
+  x=60 y=78 w=840(2行想定)。
+- リード(D4 mutedInk, y=タイトル下8pt, w=700):
+  content-plan の1文(memorize〜experiences)をそのまま。
+- 3カード横並び: y=250 h=190 w=264、x=60/348/636(間24)。
+  card1 白面   タグピル(cream)"WHAT I STUDY"
+  card2 mint面 タグピル(白)  "WHAT I WANT TO SAY"   ←製品の領域だけ着色
+  card3 白面   タグピル(cream)"HOW I KEEP PRACTICING"
+  カード内部: タグピル(上から20pt、左24pt、高さ24)+ 見出し D3 18pt(2行まで)
+  + 補足 D5 12.5pt mutedInk(1行、8語以内。文言は codex)。
+  ユーザー調査・数値の捏造は視覚上も行わない(グラフ・%表記を置かない)。
+
+=== S3  USER PROMISE ===  背景: bg-paper.png
+- Header: kicker "PROMISE" / "03"。
+- タイトル: "Speak first. Practice what matters to you."(1行なら28pt)
+- 左: ユーザーストーリーの大型紙カード x=60 y=170 w=520 h=310、白面、
+  角丸16、輪郭3pt、土台+5/+6。内部:
+  - waveform-motif.png 幅64 を左上(カード内 x=28 y=26)。
+  - ストーリー本文 18pt bold 行送り1.4、x=28 y=84 w=464:
+    "As an English learner, I want to speak or write about my day in
+    Japanese, so I can practice English based on what I actually want
+    to say."
+  - 引用符記号や斜体は使わない(太字のみで声にする)。
+- 右: サポートニーズ3チップ x=620 y=190 w=280 h=80(間18)。白面 Chip。
+  各: 左に 10x10pt の ink 正方形ブレット(角丸2)+ D5 13pt(2行まで)。
+  文言は content-plan の3項目。
+
+=== S4  FLOW ===  背景: bg-paper.png
+- Header: kicker "HOW IT WORKS" / "04"。
+- タイトル: "One Japanese thought becomes a reusable speaking exercise"
+- flow-loop.png: w=800(h=291)、x=80 y=142。
+  (図は 1→2→3 上段、4→5→6 下段の蛇行。Step1=mint、Step6=amber が
+   キャプチャと復習の対応を示す)
+- 例文ストリップ(y=452、図の下):
+  - JP紙カード: x=60 w=400 h=64、cream面、角丸12、輪郭2.5pt、土台+3/+4。
+    和文 D5 12pt W5: 「今日は授業のあと、友達とカフェで新しいプロジェクト
+    について話した。」(1〜2行)
+  - ink矢印: x=470〜504 の水平矢印(太さ4pt、三角ヘッド)。
+  - ENチップx2(縦積み): x=514 w=386 h=28(間8)、mint 12%面(=白面に
+    mintタグピル可。実装が楽な方)、輪郭1.75pt:
+    "I went to a café with a friend after class."
+    "We talked about a new project."  各11.5pt bold。
+
+=== S5  CORE JOURNEY ===  背景: bg-paper.png
+- Header: kicker "IN THE APP" / "05"。
+- タイトル: "The main flow stays focused from capture to cards"
+- スクショ4枚横並び(額装 [Screenshot frame]): 幅140(h≈303)、y=148、
+  x=100/300/500/700(中心間200)。順: home idle / recording(または
+  text-entry) / JP draft cards / completed cards。
+- ラベルピル(y=470): "Capture" を1-2枚目の中間(中心x=270)、"Confirm" を
+  3枚目(中心x=570)、"Practice" を4枚目(中心x=770)。mintタグピル。
+  1-2枚目は同グループなので、両フレーム上端 y=140 に薄い結合は作らず、
+  ラベル位置だけで示す(線を増やさない)。
+
+=== S6  FOUR SURFACES ===  背景: bg-paper.png
+- Header: kicker "SURFACES" / "06"。
+- タイトル: "Capture, remember, practice, and customize"
+- スクショ3枚: 08-notes / 05-phrases / 09-custom。幅150(h≈325)、y=150、
+  x=70/250/430。各フレームの下に白ピル(輪郭1.75)で "Notes" "Phrases"
+  "Custom"(y=488)。
+- 右リスト(4面の説明): x=640 y=158 w=260、行高72(間14)。各行=Chip:
+  左端にタグピル(幅72、11pt): Home=mint / Notes=foundation #D9E7E1 /
+  Phrases=sky / Custom=lemon #F4E75E(settings-theme準拠)。
+  右に D5 12.5pt 2行まで(文言は content-plan の4項目を短縮)。
+  Home はスクショが無い分、リスト先頭で言葉として存在させる。
+
+=== S7  REVIEW ===  背景: bg-paper.png
+- Header: kicker "LEARNING LOOP" / "07"。
+- タイトル: "Two decisions keep practice fast and repeatable"
+- ヒーロー: 07-review-answer.png を幅170(h≈368)で x=70 y=138。
+  このスクショは coral「もう一回」/ green「言えた」がそのまま写っており
+  主役級。額装は標準どおり。
+- 右に4チップ(x=520 w=380 h=52 間12、y=150起点):
+  chip1 先頭タグピル coral "AGAIN"     本文: returns the phrase sooner
+  chip2 先頭タグピル mint  "I SAID IT" 本文: increases the interval
+  chip3 先頭タグピル white "UNDO"      本文: protects against accidental taps
+  chip4 先頭タグピル white "OFFLINE"   本文: queued locally, synced reliably
+  (本文 D5 13pt。1行に収める)
+- srs-intervals.png: w=360(h=108)、x=520 y=414。実装値(3/7/14/30/60日)
+  の図なので数値を改変しない。
+
+=== S8  ARCHITECTURE ===  背景: bg-paper.png
+- Header: kicker "SYSTEM" / "08"。
+- タイトル: "AI transforms the content without becoming the product"
+- architecture-simple.png: w=740(h≈396)、x=110 y=130。
+  図内に「Audio stays on the device」の破線カードを含む。プライバシーは
+  口頭+図内で語れるので、追加テキストは置かない(スライドを守る)。
+
+=== S9  RELIABILITY ===  背景: bg-paper.png
+- Header: kicker "ENGINEERING" / "09"。
+- タイトル: "Designed to recover, stay consistent, and protect data"
+- 6カードグリッド 3x2: w=264 h=150、x=60/348/636、y=180/352(間22)。
+  全カード白面。各: 上部にタグピル(11pt、トーン面)+ 本文 D5 12.5pt
+  (2行まで、ユーザー利益で書く。文言は codex / content-plan準拠):
+  1 mint   "STATE MACHINE"   2 blue(白文字ピル) "ZOD CONTRACTS"
+  3 sky    "TANSTACK QUERY"  4 violet "IDEMPOTENCY"
+  5 amber  "LOCAL OUTBOX"    6 coral  "RLS"
+  コード断片・クラス名の羅列は置かない。
+
+=== S10  LIVE DEMO ===  背景: bg-mint.png
+- kickerピル(ink面+白文字)"LIVE DEMO" を中央 y=56(高さ30)。
+- logo-lockup.png: 幅110、中心x=480、y=100。
+- 見出し: "Now, one thought becomes something I can practice"
+  22pt bold ink、中央、y=228。
+- デモ3ビート(y=280、中央揃え横並び): 白面Chip w=250 h=84、x=75/355/635。
+  各: 左上に番号ピル(白面ink輪郭、直径26、"1/2/3")+ D5 13pt 2行:
+  "Speak a short Japanese thought" / "Watch it become English cards" /
+  "Open a card and review it"
+- クロージング: "Your life becomes your English practice."
+  26pt bold ink、中央、y=430。装飾なし(mint地+ink文字で十分強い)。
+- mint地でも土台・輪郭は ink のまま(白フチにしない)。
+
+=== A1  APPENDIX: RECORDED CORE FLOW ===  背景: bg-paper.png(非本編)
+デモ障害時に S10 の直後へ差し込む静止画ウォークスルー。
+- Header: kicker "APPENDIX · IF THE DEMO FIGHTS BACK" / 番号 "A1"。
+  タイトルは置かない(ヘッダのみで開始)。
+- スクショ5枚横並び: 幅132(h≈286)、y=120、x=60/236/412/588/764。
+  順: home idle / recording / JP draft cards / completed cards /
+  07-review-answer。
+- 各フレーム下に番号ピル+キャプション(11pt、1語): 1 Speak / 2 Transcribe
+  / 3 Confirm / 4 Cards / 5 Review(y=424)。
+- 発表時はこの1枚をクリックなしで指差しながら話せる密度にする。
+
+=== A2  APPENDIX: SYSTEM DETAIL ===  背景: bg-paper.png(非本編・Q&A用)
+- Header: kicker "APPENDIX · SYSTEM DETAIL" / 番号 "A2"。タイトルなし。
+- architecture-detailed.png: w=850(h≈473)、x=55 y=60。
+  (paper色の背景を焼き込み済みなので bg とシームレスに馴染む)
+  ゾーン=CLIENT/SUPABASE/OPENAI、実線=書込、破線=読取、右下に凡例あり。
+
+--------------------------------------------------------------------------------
+7. スクリーンショット運用の注意(QA向け)
+--------------------------------------------------------------------------------
+a) 内容: 現在の 05-phrases / 08-notes には個人的な独り言(Claude/GPT/AGM-SG
+   への言及など)がそのまま写っている。審査で読まれる前提なら、S4 の例文
+   (カフェ/プロジェクト)を実際にアプリへ入力した状態で全シート撮り直すと、
+   スライド間で例文が一気通貫になり完成度が上がる。撮り直せない場合は
+   そのまま使用可(機微情報ではない)が、ユーザーに一言確認を推奨。
+b) 統一: ステータスバーの時刻・バッテリーが揃った同一セッションで撮るのが
+   理想。ライトモード・原文タブなど表示状態も揃える。
+c) 加工禁止: ぼかし・トリミング(角丸クロップ以外)・拡大縮小の非等比は
+   しない。額装(ink輪郭+土台)だけで十分ブランドに乗る。
+
+--------------------------------------------------------------------------------
+8. 実装チェックリスト(codex 最終確認用)
+--------------------------------------------------------------------------------
+[ ] 全スライドで土台オフセットが右下(+x/+y)に統一されている
+[ ] 白文字が blue と ink 以外の面に乗っていない
+[ ] 11pt 未満のテキストが存在しない
+[ ] ヘッダ(ピル+ルール+番号)が S2-S9/A1/A2 で同一座標
+[ ] 画像はすべて等比、額装角丸 20pt・輪郭 3pt で統一
+[ ] mint の使用は「アクセント」に留まり、コンテンツ面積の3割を超えない
+    (S10 背景は例外)
+[ ] SRS 図・フロー図の数値/文言がコード実装と一致(3/7/14/30/60日、6ステップ)
+[ ] 捏造メトリクス・存在しないグラフがない
+[ ] スピーカーノートはデザイン対象外(codex 管轄)
+================================================================================

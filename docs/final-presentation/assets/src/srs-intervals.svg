@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="330" viewBox="0 0 1000 330" font-family="Avenir Next">
+  <!-- ベースライン -->
+  <line x1="40" y1="260" x2="880" y2="260" stroke="#111111" stroke-width="8"/>
+  <!-- 成功間隔バー(実値: 3/7/14/30/60日)。360pt幅で置いても11pt相当を保つ文字サイズ -->
+  <g fill="#2FDD6C" stroke="#111111" stroke-width="8">
+    <rect x="60"  y="220" width="120" height="40"  rx="12"/>
+    <rect x="220" y="190" width="120" height="70"  rx="12"/>
+    <rect x="380" y="155" width="120" height="105" rx="12"/>
+    <rect x="540" y="110" width="120" height="150" rx="12"/>
+    <rect x="700" y="60"  width="120" height="200" rx="12"/>
+  </g>
+  <g font-size="34" font-weight="800" fill="#111111" text-anchor="middle">
+    <text x="120" y="206">3d</text>
+    <text x="280" y="176">7d</text>
+    <text x="440" y="141">14d</text>
+    <text x="600" y="96">30d</text>
+    <text x="760" y="46">60d</text>
+  </g>
+  <!-- キャプション -->
+  <text x="60" y="316" font-size="32" font-weight="700" fill="#111111">"I said it" moves right · "Again" restarts at 1 day</text>
+</svg>

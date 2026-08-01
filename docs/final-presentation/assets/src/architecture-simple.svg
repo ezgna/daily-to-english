@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" font-family="Avenir Next">
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <!-- 矢印(書込=実線 / 読取=破線) -->
+  <g stroke="#111111" stroke-width="9" fill="none" marker-end="url(#arrow)">
+    <polyline points="448,360 550,360 550,190 640,190"/>
+    <polyline points="1090,190 1228,190"/>
+    <polyline points="870,302 870,470 1430,470 1430,548"/>
+    <polyline points="448,460 550,460 550,680 640,680" stroke-dasharray="20 16"/>
+    <polyline points="1090,680 1228,680" stroke-dasharray="20 16"/>
+  </g>
+  <!-- 矢印ラベル -->
+  <g font-size="24" font-weight="700" fill="#111111">
+    <text x="595" y="130" text-anchor="middle">writes</text>
+    <text x="595" y="160" text-anchor="middle" font-size="18">(authenticated)</text>
+    <text x="1160" y="230" text-anchor="middle" font-size="18">structured</text>
+    <text x="1160" y="256" text-anchor="middle" font-size="18">output</text>
+    <text x="900" y="452">service role + user_id</text>
+    <text x="572" y="572">reads (row level security)</text>
+  </g>
+
+  <!-- Expo App -->
+  <g>
+    <rect x="70" y="311" width="380" height="220" rx="20" fill="#111111"/>
+    <rect x="60" y="300" width="380" height="220" rx="20" fill="#2FDD6C" stroke="#111111" stroke-width="6"/>
+    <text x="90" y="365" font-size="40" font-weight="800" fill="#111111">Expo App</text>
+    <text x="90" y="410" font-size="24" font-weight="600" fill="#111111">iOS · Android</text>
+    <text x="90" y="446" font-size="24" font-weight="600" fill="#111111">capture · notes · phrases</text>
+    <text x="90" y="482" font-size="24" font-weight="600" fill="#111111">review</text>
+  </g>
+  <!-- プライバシー注記 -->
+  <g>
+    <rect x="60" y="580" width="380" height="104" rx="20" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-dasharray="14 10"/>
+    <text x="90" y="624" font-size="22" font-weight="700" fill="#111111">Audio stays on the device.</text>
+    <text x="90" y="656" font-size="20" font-weight="500" fill="#111111">Cloud stores text + waveform only.</text>
+  </g>
+  <!-- api Edge Function -->
+  <g>
+    <rect x="670" y="101" width="420" height="200" rx="20" fill="#111111"/>
+    <rect x="660" y="90" width="420" height="200" rx="20" fill="#276EF1" stroke="#111111" stroke-width="6"/>
+    <text x="690" y="152" font-size="40" font-weight="800" fill="#FFFFFF">api</text>
+    <text x="690" y="192" font-size="24" font-weight="600" fill="#FFFFFF">Supabase Edge Function</text>
+    <text x="690" y="230" font-size="22" font-weight="500" fill="#FFFFFF">auth · Zod validation</text>
+    <text x="690" y="260" font-size="22" font-weight="500" fill="#FFFFFF">idempotency</text>
+  </g>
+  <!-- OpenAI -->
+  <g>
+    <rect x="1250" y="101" width="380" height="200" rx="20" fill="#111111"/>
+    <rect x="1240" y="90" width="380" height="200" rx="20" fill="#9B7CFF" stroke="#111111" stroke-width="6"/>
+    <text x="1270" y="152" font-size="36" font-weight="800" fill="#111111">OpenAI API</text>
+    <text x="1270" y="196" font-size="22" font-weight="600" fill="#111111">transcribe · clean</text>
+    <text x="1270" y="228" font-size="22" font-weight="600" fill="#111111">split · translate</text>
+  </g>
+  <!-- PostgREST + RLS -->
+  <g>
+    <rect x="670" y="611" width="420" height="160" rx="20" fill="#111111"/>
+    <rect x="660" y="600" width="420" height="160" rx="20" fill="#9FD0F8" stroke="#111111" stroke-width="6"/>
+    <text x="690" y="662" font-size="32" font-weight="800" fill="#111111">PostgREST + RLS</text>
+    <text x="690" y="704" font-size="22" font-weight="600" fill="#111111">read-only · own rows only</text>
+  </g>
+  <!-- PostgreSQL -->
+  <g>
+    <rect x="1250" y="571" width="380" height="240" rx="20" fill="#111111"/>
+    <rect x="1240" y="560" width="380" height="240" rx="20" fill="#FFE2A6" stroke="#111111" stroke-width="6"/>
+    <text x="1270" y="622" font-size="36" font-weight="800" fill="#111111">PostgreSQL</text>
+    <text x="1270" y="666" font-size="22" font-weight="600" fill="#111111">entries · generations</text>
+    <text x="1270" y="698" font-size="22" font-weight="600" fill="#111111">cards · review_events</text>
+    <text x="1270" y="730" font-size="22" font-weight="600" fill="#111111">usage_events</text>
+  </g>
+</svg>

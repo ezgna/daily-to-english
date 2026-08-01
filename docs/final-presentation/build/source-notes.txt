@@ -1,0 +1,29 @@
+All content is based on the Just Speak It repository and the user's stated final-exam requirements.
+
+No external images, research claims, statistics, testimonials, or fabricated user outcomes are planned.
+
+Primary repository sources:
+- README.md
+- docs/redesign-proposal.md
+- docs/milestone3/README.md
+- docs/architecture/README.md
+- docs/architecture/just-speak-it-low-level-overview.png
+- app/(tabs)/_layout.tsx
+- features/capture/capture-screen.tsx
+- features/capture/capture-state.ts
+- features/cards/cards-screen.tsx
+- features/diary/*
+- features/review/*
+- features/settings/*
+- packages/contract/src/*
+- packages/core/src/srs.ts
+- shared/api/*
+- shared/theme/tokens.ts
+- supabase/functions/api/*
+- supabase/migrations/20260731043000_rebuild_schema_v3.sql
+
+User-provided requirements:
+- Presentation must include design/architecture, user stories, features, and screenshots.
+- A working demo must explain a concrete user flow.
+- A mobile app may be presented from the user's Mac and Simulator.
+- Scheduled presentation date: August 5.

@@ -3,7 +3,11 @@ import { AppState } from 'react-native';
 import { reviewRatingSchema, type ReviewRating } from '@just-speak-it/contract';
 
 import { formatApiError, reviewCard, undoReview } from '@/shared/api/client';
-import { getLocalString, setLocalStringOrThrow } from '@/shared/storage/local-storage';
+import {
+  getLocalString,
+  removeLocalValue,
+  setLocalStringOrThrow,
+} from '@/shared/storage/local-storage';
 
 type ReviewOperation = OutboxOperationBase & {
   kind: 'review';
@@ -115,6 +119,12 @@ export function startReviewOutbox() {
     subscription.remove();
     clearRetryTimeout();
   };
+}
+
+export function clearReviewOutbox() {
+  clearRetryTimeout();
+  removeLocalValue(StorageKey);
+  emit('changed');
 }
 
 function requestFlush(force = false) {

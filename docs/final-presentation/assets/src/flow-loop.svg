@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="640" viewBox="0 0 1760 640" font-family="Avenir Next">
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <!-- 接続矢印 -->
+  <g stroke="#111111" stroke-width="10" fill="none" marker-end="url(#arrow)">
+    <line x1="530" y1="140" x2="600" y2="140"/>
+    <line x1="1110" y1="140" x2="1180" y2="140"/>
+    <line x1="1440" y1="245" x2="1440" y2="380"/>
+    <line x1="1188" y1="490" x2="1118" y2="490"/>
+    <line x1="608" y1="490" x2="538" y2="490"/>
+  </g>
+
+  <!-- ステップカード: 土台+本体 -->
+  <!-- Step 1 (mint) -->
+  <g>
+    <rect x="49" y="61" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="40" y="50" width="480" height="180" rx="24" fill="#2FDD6C" stroke="#111111" stroke-width="6"/>
+    <circle cx="106" cy="102" r="28" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+    <text x="106" y="113" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">1</text>
+    <text x="80" y="168" font-size="30" font-weight="800" fill="#111111">Speak or write</text>
+    <text x="80" y="206" font-size="30" font-weight="800" fill="#111111">in Japanese</text>
+  </g>
+  <!-- Step 2 -->
+  <g>
+    <rect x="629" y="61" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="620" y="50" width="480" height="180" rx="24" fill="#FFFFFF" stroke="#111111" stroke-width="6"/>
+    <circle cx="686" cy="102" r="28" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+    <text x="686" y="113" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">2</text>
+    <text x="660" y="168" font-size="30" font-weight="800" fill="#111111">Transcribe &amp; clean</text>
+    <text x="660" y="206" font-size="30" font-weight="800" fill="#111111">the text</text>
+  </g>
+  <!-- Step 3 -->
+  <g>
+    <rect x="1209" y="61" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="1200" y="50" width="480" height="180" rx="24" fill="#FFFFFF" stroke="#111111" stroke-width="6"/>
+    <circle cx="1266" cy="102" r="28" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+    <text x="1266" y="113" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">3</text>
+    <text x="1240" y="168" font-size="30" font-weight="800" fill="#111111">Split into</text>
+    <text x="1240" y="206" font-size="30" font-weight="800" fill="#111111">speakable ideas</text>
+  </g>
+  <!-- Step 4 -->
+  <g>
+    <rect x="1209" y="411" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="1200" y="400" width="480" height="180" rx="24" fill="#FFFFFF" stroke="#111111" stroke-width="6"/>
+    <circle cx="1266" cy="452" r="28" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+    <text x="1266" y="463" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">4</text>
+    <text x="1240" y="518" font-size="30" font-weight="800" fill="#111111">Translate into</text>
+    <text x="1240" y="556" font-size="30" font-weight="800" fill="#111111">natural English</text>
+  </g>
+  <!-- Step 5 -->
+  <g>
+    <rect x="629" y="411" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="620" y="400" width="480" height="180" rx="24" fill="#FFFFFF" stroke="#111111" stroke-width="6"/>
+    <circle cx="686" cy="452" r="28" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+    <text x="686" y="463" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">5</text>
+    <text x="660" y="518" font-size="30" font-weight="800" fill="#111111">Save as phrases</text>
+    <text x="660" y="556" font-size="30" font-weight="800" fill="#111111">&amp; notes</text>
+  </g>
+  <!-- Step 6 (amber) -->
+  <g>
+    <rect x="49" y="411" width="480" height="180" rx="24" fill="#111111"/>
+    <rect x="40" y="400" width="480" height="180" rx="24" fill="#FFE2A6" stroke="#111111" stroke-width="6"/>
+    <circle cx="106" cy="452" r="28" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+    <text x="106" y="463" font-size="30" font-weight="800" fill="#111111" text-anchor="middle">6</text>
+    <text x="80" y="518" font-size="30" font-weight="800" fill="#111111">Review with</text>
+    <text x="80" y="556" font-size="30" font-weight="800" fill="#111111">spaced repetition</text>
+  </g>
+</svg>

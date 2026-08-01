@@ -80,6 +80,13 @@ export async function undoReview(cardId: string, reviewEventId: string) {
   });
 }
 
+export async function deleteDeveloperData() {
+  await callApi('/developer/data/reset', {
+    method: 'POST',
+    json: {},
+  });
+}
+
 async function callApi(
   path: string,
   options: {

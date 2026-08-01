@@ -1,0 +1,175 @@
+COMMUNICATION JOB
+
+By the end, the instructors should understand that Just Speak It is a coherent, working mobile product that turns a learner's own Japanese thoughts into personalized English speaking practice, supported by a deliberate user flow and production-minded architecture.
+
+AUDIENCE
+
+- Final-exam instructors and classmates
+- They need to assess product thinking, implementation completeness, presentation clarity, and a working user flow.
+
+FORMAT
+
+- 16:9 presentation
+- Approximately 10 slides
+- Approximately 5–8 minutes before the live demo
+- Visible copy primarily in English, with Japanese examples where the product interaction requires them
+- Speaker notes contain a concise talk track and source block
+
+CENTRAL TAKEAWAY
+
+Just Speak It converts the learner's own life and thoughts—not generic textbook sentences—into English they can actually practice saying.
+
+NARRATIVE ARC
+
+Problem → user promise → one complete journey → product surfaces → learning loop → architecture and privacy → engineering choices → live proof.
+
+SLIDE 1 — JUST SPEAK IT
+
+Narrative job: Establish the product and its promise.
+Takeaway title: Just Speak It
+Visible copy:
+- Turn your own words into English you can speak.
+- Final Project · Mobile App
+Evidence/visual content:
+- App icon
+- One strong product-screen image or device frame if available
+
+SLIDE 2 — THE ENGLISH YOU STUDY IS NOT ALWAYS THE ENGLISH YOU NEED
+
+Narrative job: Make the problem concrete.
+Takeaway title: Textbook English is not always what you want to say
+Visible copy:
+- Learners can memorize useful sentences and still struggle to express their own day, opinions, and experiences.
+- Three concise tensions: “What I study” / “What I want to say” / “How I keep practicing”
+Do not invent user research or metrics.
+
+SLIDE 3 — THE USER PROMISE
+
+Narrative job: Define the intended user outcome.
+Takeaway title: Speak first. Practice what matters to you.
+Primary user story:
+- As an English learner, I want to speak or write about my day in Japanese, so I can practice English based on what I actually want to say.
+Supporting needs:
+- Create material without writing English first.
+- Review it again when it is due.
+- Keep the original thought as a personal note.
+
+SLIDE 4 — ONE INPUT BECOMES A COMPLETE LEARNING LOOP
+
+Narrative job: Explain the full user flow before showing screens.
+Takeaway title: One Japanese thought becomes a reusable speaking exercise
+Flow:
+1. Speak or write in Japanese
+2. Transcribe and clean the text
+3. Split it into speakable ideas
+4. Translate into natural English
+5. Save as phrases and notes
+6. Review with spaced repetition
+Concrete example:
+- Japanese: 今日は授業のあと、友達とカフェで新しいプロジェクトについて話した。
+- Card 1: I went to a café with a friend after class.
+- Card 2: We talked about a new project.
+
+SLIDE 5 — THE CORE JOURNEY IN THE APP
+
+Narrative job: Show completion through real product screens.
+Takeaway title: The main flow stays focused from capture to cards
+Required screenshots:
+- Home ready state
+- Recording or text-entry state
+- Japanese draft cards
+- Completed cards
+Minimal labels only: Capture / Confirm / Practice
+
+SLIDE 6 — FOUR SURFACES, ONE CONTINUOUS EXPERIENCE
+
+Narrative job: Show product breadth without becoming a feature inventory.
+Takeaway title: Capture, remember, practice, and customize
+Product surfaces:
+- Home: speak, write, and review due cards
+- Notes: revisit the original entry and local recording
+- Phrases: browse saved Japanese–English cards
+- Custom: choose split depth, translation style, theme, and local recording policy
+Required screenshots:
+- Notes
+- Phrases
+- Custom, if space permits
+
+SLIDE 7 — REVIEW IS DELIBERATELY SIMPLE
+
+Narrative job: Explain the learning behavior and its design rationale.
+Takeaway title: Two decisions keep practice fast and repeatable
+Visible copy:
+- “Again” returns the phrase sooner.
+- “I said it” increases the review interval.
+- Undo protects against accidental taps.
+- Pending results are queued locally and synchronized reliably.
+Visual content:
+- Review screenshot with Japanese prompt, English reveal, two decisions, and undo
+- Small interval progression only if it remains readable
+
+SLIDE 8 — AI DOES THE HEAVY WORK; THE USER KEEPS CONTROL
+
+Narrative job: Explain the technical system and privacy boundary.
+Takeaway title: AI transforms the content without becoming the product
+System story:
+- Expo app captures the learner's input.
+- A single authenticated Supabase Edge Function validates writes and calls OpenAI.
+- OpenAI performs transcription, cleanup, splitting, and translation using structured responses.
+- PostgreSQL stores entries, generations, cards, reviews, and usage events.
+- The original audio is not persisted in cloud storage; optional copies stay on device.
+Visual content:
+- Simplified architecture diagram based on docs/architecture/just-speak-it-low-level-overview.png
+
+SLIDE 9 — RELIABILITY IS PART OF THE USER EXPERIENCE
+
+Narrative job: Demonstrate engineering depth through user impact.
+Takeaway title: The app is designed to recover, stay consistent, and protect data
+Evidence:
+- Explicit capture state machine prevents contradictory UI states.
+- Shared Zod contracts keep the app and Edge Function aligned.
+- TanStack Query keeps server state consistent across screens.
+- Idempotency prevents duplicate AI generations.
+- Review events and a local outbox make review and undo resilient.
+- RLS allows users to read only their own data; writes pass through the authenticated API.
+Avoid code dumps. Map each technical decision to a visible user benefit.
+
+SLIDE 10 — LIVE DEMO
+
+Narrative job: Transition directly into the required working demonstration.
+Takeaway title: Now, one thought becomes something I can practice
+Demo journey:
+1. Speak a short Japanese thought
+2. Watch it become English cards
+3. Open a card and review it
+Closing line:
+- Your life becomes your English practice.
+Visual content:
+- Minimal final slide with the app icon and the three demo beats
+
+SCREENSHOT SHOT LIST
+
+1. Home idle state with Speak it action
+2. Active recording state
+3. Text-entry state, if it clarifies the alternative input path
+4. Japanese draft cards before translation
+5. Completed Japanese–English cards
+6. Review prompt
+7. Review answer with decisions
+8. Notes list with waveform
+9. Phrases list
+10. Custom/settings screen
+
+SOURCE MAP
+
+- Product statement and features: README.md
+- User flow and architecture rationale: docs/redesign-proposal.md
+- Low-level system diagram: docs/architecture/just-speak-it-low-level-overview.png and docs/architecture/README.md
+- Existing presentation evidence: docs/milestone3/README.md
+- Capture state and UX: features/capture/capture-screen.tsx and features/capture/capture-state.ts
+- Notes: features/diary/*
+- Phrases: features/cards/cards-screen.tsx
+- Review: features/review/* and packages/core/src/srs.ts
+- Reliability and API: shared/api/*, packages/contract/*, supabase/functions/api/*
+- Privacy and data model: supabase/migrations/20260731043000_rebuild_schema_v3.sql
+- Visual identity: assets/icons, docs/design/app-icon/*, shared/theme/tokens.ts

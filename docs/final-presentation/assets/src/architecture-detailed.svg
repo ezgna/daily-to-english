@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="980" viewBox="0 0 1760 980" font-family="Avenir Next">
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1760" height="980" fill="#F8F6EF"/>
+  <!-- ゾーン -->
+  <rect x="40" y="40" width="420" height="900" rx="28" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+  <rect x="520" y="40" width="760" height="900" rx="28" fill="#E4F4EA" stroke="#111111" stroke-width="4"/>
+  <rect x="1340" y="40" width="380" height="900" rx="28" fill="#FFF3DC" stroke="#111111" stroke-width="4"/>
+  <!-- ゾーンラベル -->
+  <g>
+    <rect x="60" y="16" width="280" height="48" rx="999" fill="#111111"/>
+    <text x="200" y="48" font-size="24" font-weight="800" fill="#FFFFFF" text-anchor="middle">CLIENT / DEVICE</text>
+    <rect x="540" y="16" width="190" height="48" rx="999" fill="#111111"/>
+    <text x="635" y="48" font-size="24" font-weight="800" fill="#FFFFFF" text-anchor="middle">SUPABASE</text>
+    <rect x="1360" y="16" width="160" height="48" rx="999" fill="#111111"/>
+    <text x="1440" y="48" font-size="24" font-weight="800" fill="#FFFFFF" text-anchor="middle">OPENAI</text>
+  </g>
+
+  <!-- 矢印(書込=実線 / 読取=破線) -->
+  <g stroke="#111111" stroke-width="8" fill="none" marker-end="url(#arrow)">
+    <polyline points="440,360 500,360 500,180 532,180"/>
+    <polyline points="900,252 900,282"/>
+    <polyline points="1260,360 1310,360 1310,200 1352,200"/>
+    <polyline points="1260,420 1352,420"/>
+    <polyline points="1080,632 1080,672"/>
+    <polyline points="440,530 500,530 500,760 532,760" stroke-dasharray="18 14"/>
+    <polyline points="852,760 892,760" stroke-dasharray="18 14"/>
+  </g>
+  <g font-size="20" font-weight="700" fill="#111111">
+    <text x="916" y="272">verified request</text>
+    <text x="1096" y="660">service role</text>
+  </g>
+
+  <!-- CLIENT / DEVICE -->
+  <g>
+    <rect x="68" y="128" width="380" height="130" rx="16" fill="#111111"/>
+    <rect x="60" y="120" width="380" height="130" rx="16" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+    <text x="88" y="172" font-size="30" font-weight="800" fill="#111111">Expo Mobile App</text>
+    <text x="88" y="212" font-size="20" font-weight="600" fill="#111111">capture · notes · phrases · review</text>
+  </g>
+  <g>
+    <rect x="68" y="308" width="380" height="120" rx="16" fill="#111111"/>
+    <rect x="60" y="300" width="380" height="120" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+    <text x="88" y="350" font-size="28" font-weight="800" fill="#111111">API client</text>
+    <text x="88" y="388" font-size="20" font-weight="600" fill="#111111">shared/api/client.ts · write commands</text>
+  </g>
+  <g>
+    <rect x="68" y="478" width="380" height="120" rx="16" fill="#111111"/>
+    <rect x="60" y="470" width="380" height="120" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+    <text x="88" y="520" font-size="28" font-weight="800" fill="#111111">Read models</text>
+    <text x="88" y="558" font-size="20" font-weight="600" fill="#111111">TanStack Query · refetch</text>
+  </g>
+  <g>
+    <rect x="60" y="660" width="380" height="150" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-dasharray="14 10"/>
+    <text x="88" y="710" font-size="24" font-weight="800" fill="#111111">Local audio copy (optional)</text>
+    <text x="88" y="746" font-size="19" font-weight="600" fill="#111111">Documents/recordings · MMKV index</text>
+    <text x="88" y="774" font-size="19" font-weight="600" fill="#111111">only when saveRecordings is ON</text>
+  </g>
+
+  <!-- SUPABASE -->
+  <g>
+    <rect x="548" y="128" width="720" height="120" rx="16" fill="#111111"/>
+    <rect x="540" y="120" width="720" height="120" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+    <text x="568" y="170" font-size="30" font-weight="800" fill="#111111">Supabase Auth + Edge Functions Gateway</text>
+    <text x="568" y="208" font-size="20" font-weight="600" fill="#111111">anonymous session · Bearer JWT · verify_jwt = true</text>
+  </g>
+  <g>
+    <rect x="548" y="298" width="720" height="330" rx="16" fill="#111111"/>
+    <rect x="540" y="290" width="720" height="330" rx="16" fill="#276EF1" stroke="#111111" stroke-width="5"/>
+    <text x="568" y="340" font-size="32" font-weight="800" fill="#FFFFFF">EDGE FUNCTION: api (Deno + Hono)</text>
+    <text x="568" y="384" font-size="21" font-weight="600" fill="#FFFFFF">middleware: JWT sub → userId · service-role client · errors</text>
+    <rect x="568" y="412" width="330" height="96" rx="12" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+    <text x="592" y="452" font-size="24" font-weight="800" fill="#111111">POST /transcriptions</text>
+    <text x="592" y="486" font-size="20" font-weight="600" fill="#111111">audio → STT → clean</text>
+    <rect x="922" y="412" width="316" height="96" rx="12" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+    <text x="946" y="452" font-size="24" font-weight="800" fill="#111111">POST /generations</text>
+    <text x="946" y="486" font-size="20" font-weight="600" fill="#111111">split → translate</text>
+    <text x="568" y="556" font-size="21" font-weight="600" fill="#FFFFFF">state changes: translate · discard · review · undo</text>
+    <text x="568" y="594" font-size="21" font-weight="600" fill="#FFFFFF">Zod contracts · SRS rules · prompt/schema versions</text>
+  </g>
+  <g>
+    <rect x="548" y="688" width="300" height="160" rx="16" fill="#111111"/>
+    <rect x="540" y="680" width="300" height="160" rx="16" fill="#9FD0F8" stroke="#111111" stroke-width="5"/>
+    <text x="568" y="730" font-size="28" font-weight="800" fill="#111111">PostgREST</text>
+    <text x="568" y="768" font-size="22" font-weight="700" fill="#111111">Read API</text>
+    <text x="568" y="802" font-size="19" font-weight="600" fill="#111111">authenticated + RLS</text>
+  </g>
+  <g>
+    <rect x="908" y="688" width="360" height="220" rx="16" fill="#111111"/>
+    <rect x="900" y="680" width="360" height="220" rx="16" fill="#FFE2A6" stroke="#111111" stroke-width="5"/>
+    <text x="928" y="734" font-size="32" font-weight="800" fill="#111111">PostgreSQL</text>
+    <text x="928" y="776" font-size="20" font-weight="600" fill="#111111">profiles · entries · generations</text>
+    <text x="928" y="806" font-size="20" font-weight="600" fill="#111111">cards · review_events</text>
+    <text x="928" y="836" font-size="20" font-weight="600" fill="#111111">usage_events</text>
+  </g>
+
+  <!-- OPENAI -->
+  <g>
+    <rect x="1368" y="128" width="340" height="160" rx="16" fill="#111111"/>
+    <rect x="1360" y="120" width="340" height="160" rx="16" fill="#9B7CFF" stroke="#111111" stroke-width="5"/>
+    <text x="1388" y="164" font-size="26" font-weight="800" fill="#111111">Audio</text>
+    <text x="1388" y="196" font-size="26" font-weight="800" fill="#111111">Transcriptions API</text>
+    <text x="1388" y="234" font-size="19" font-weight="600" fill="#111111">Japanese audio → rawText</text>
+    <text x="1388" y="262" font-size="19" font-weight="600" fill="#111111">+ word timestamps</text>
+  </g>
+  <g>
+    <rect x="1368" y="348" width="340" height="160" rx="16" fill="#111111"/>
+    <rect x="1360" y="340" width="340" height="160" rx="16" fill="#9B7CFF" stroke="#111111" stroke-width="5"/>
+    <text x="1388" y="392" font-size="28" font-weight="800" fill="#111111">Responses API</text>
+    <text x="1388" y="430" font-size="19" font-weight="600" fill="#111111">structured JSON output</text>
+    <text x="1388" y="458" font-size="19" font-weight="600" fill="#111111">clean · split · translate</text>
+  </g>
+  <g>
+    <rect x="1360" y="560" width="340" height="130" rx="16" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-dasharray="14 10"/>
+    <text x="1388" y="610" font-size="20" font-weight="700" fill="#111111">Audio is not persisted.</text>
+    <text x="1388" y="640" font-size="20" font-weight="700" fill="#111111">No .m4a in DB or Storage.</text>
+  </g>
+
+  <!-- 凡例 -->
+  <g>
+    <line x1="60" y1="962" x2="120" y2="962" stroke="#111111" stroke-width="8"/>
+    <text x="134" y="970" font-size="20" font-weight="700" fill="#111111">write path</text>
+    <line x1="280" y1="962" x2="340" y2="962" stroke="#111111" stroke-width="8" stroke-dasharray="18 14"/>
+    <text x="354" y="970" font-size="20" font-weight="700" fill="#111111">read path</text>
+  </g>
+</svg>

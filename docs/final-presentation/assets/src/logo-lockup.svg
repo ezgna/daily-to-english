@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+  <!-- 土台(foundation): 吹き出しを右下にオフセットしたインク面 -->
+  <path d="M 136 80 H 376 Q 440 80 440 144 V 336 Q 440 400 376 400 H 226 L 172 468 L 162 400 H 136 Q 72 400 72 336 V 144 Q 72 80 136 80 Z"
+        transform="translate(16,20)" fill="#111111"/>
+  <!-- 吹き出し本体 -->
+  <path d="M 136 80 H 376 Q 440 80 440 144 V 336 Q 440 400 376 400 H 226 L 172 468 L 162 400 H 136 Q 72 400 72 336 V 144 Q 72 80 136 80 Z"
+        fill="#FFFFFF" stroke="#111111" stroke-width="12" stroke-linejoin="round"/>
+  <!-- 波形バー -->
+  <g fill="#2FDD6C" stroke="#111111" stroke-width="8">
+    <rect x="122" y="205" width="36" height="70"  rx="18"/>
+    <rect x="180" y="175" width="36" height="130" rx="18"/>
+    <rect x="238" y="145" width="36" height="190" rx="18"/>
+    <rect x="296" y="175" width="36" height="130" rx="18"/>
+    <rect x="354" y="205" width="36" height="70"  rx="18"/>
+  </g>
+</svg>
