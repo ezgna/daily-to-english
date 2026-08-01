@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, requireSupabaseClient } from '@/shared/supabase/client';
+import { i18n } from '@/shared/i18n';
 
 export type BackendSessionState =
   | { status: 'not-configured'; userId: null }
@@ -27,7 +28,7 @@ export async function refreshAnonymousSession(): Promise<BackendSessionState> {
   }
 
   if (!data.session?.user) {
-    throw new Error('匿名セッションを更新できませんでした。');
+    throw new Error(i18n.t('errors.authRefresh'));
   }
 
   return { status: 'ready', userId: data.session.user.id };
@@ -52,7 +53,7 @@ async function loadOrCreateAnonymousSession(): Promise<BackendSessionState> {
   }
 
   if (!data.user) {
-    throw new Error('匿名ユーザーの作成に失敗しました。');
+    throw new Error(i18n.t('errors.authCreate'));
   }
 
   return { status: 'ready', userId: data.user.id };

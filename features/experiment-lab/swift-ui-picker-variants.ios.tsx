@@ -7,6 +7,7 @@ import {
   tag,
 } from '@expo/ui/swift-ui/modifiers';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { Spacing } from '@/shared/legacy/theme';
 import { AppText } from '@/shared/ui/app-text';
@@ -19,6 +20,8 @@ export function SwiftUIPickerVariants({
   onChange,
   tintColor,
 }: SwiftUIPickerVariantsProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <View style={styles.variant}>
@@ -27,7 +30,7 @@ export function SwiftUIPickerVariants({
         </AppText>
         <Host matchContents={{ vertical: true }} seedColor={tintColor} style={styles.host}>
           <Picker
-            label="表示モード"
+            label={t('lab.displayMode')}
             modifiers={[pickerStyle('segmented'), controlSize('mini'), labelsHidden()]}
             onSelectionChange={onChange}
             selection={value}
@@ -47,7 +50,7 @@ export function SwiftUIPickerVariants({
         </AppText>
         <Host matchContents={{ vertical: true }} seedColor={tintColor} style={styles.host}>
           <Picker
-            label="表示モード"
+            label={t('lab.displayMode')}
             modifiers={[pickerStyle('segmented'), controlSize('large'), labelsHidden()]}
             onSelectionChange={onChange}
             selection={value}
@@ -102,6 +105,8 @@ function PickerVariant({
   tintColor,
   value,
 }: PickerVariantProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.variant}>
       <AppText muted variant="caption">
@@ -109,7 +114,7 @@ function PickerVariant({
       </AppText>
       <Host matchContents={{ vertical: true }} seedColor={tintColor} style={styles.host}>
         <Picker
-          label="表示モード"
+          label={t('lab.displayMode')}
           modifiers={[pickerStyle(style), labelsHidden()]}
           onSelectionChange={onChange}
           selection={value}

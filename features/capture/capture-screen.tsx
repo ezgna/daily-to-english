@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import type { GenerationBundle } from '@just-speak-it/contract';
 
@@ -25,6 +26,7 @@ import { Surface } from '@/shared/ui/surface';
 
 export function CaptureScreen() {
   const colors = useDailyPalette();
+  const { t } = useTranslation();
   const safeAreaInsets = useSafeAreaInsets();
   const settings = useSettings();
   const recorder = useRecorder();
@@ -33,6 +35,7 @@ export function CaptureScreen() {
   const latestPending = useLatestPendingGeneration();
   const [state, dispatch] = useReducer(captureReducer, { phase: 'idle', mode: 'voice' });
   const [text, setText] = useState('');
+  const previousLanguageRef = useRef(settings.appLanguage);
   const mode = readMode(state);
   const busy = state.phase === 'recording' || state.phase === 'transcribing' || state.phase === 'generating';
 
@@ -43,12 +46,24 @@ export function CaptureScreen() {
     });
   }, []);
 
+  useEffect(() => {
+    if (previousLanguageRef.current === settings.appLanguage) {
+      return;
+    }
+
+    previousLanguageRef.current = settings.appLanguage;
+
+    if (state.phase === 'error') {
+      dispatch({ type: 'RESET' });
+    }
+  }, [settings.appLanguage, state.phase]);
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const cleanText = text.trim();
 
       if (!cleanText) {
-        throw new Error('日記本文を入力してください。');
+        throw new Error(t('capture.errors.emptyText'));
       }
 
       dispatch({ type: 'SUBMIT_TEXT' });
@@ -174,8 +189,12 @@ export function CaptureScreen() {
 
   const modeSwitchButton = showModeSwitch ? (
     <GlideButton
-      label={mode === 'write' ? '話す' : '書く'}
-      accessibilityLabel={mode === 'write' ? '話すモードに戻る' : '書くモードに切り替える'}
+      label={mode === 'write' ? t('capture.actions.speak') : t('capture.actions.write')}
+      accessibilityLabel={
+        mode === 'write'
+          ? t('capture.accessibility.switchToVoice')
+          : t('capture.accessibility.switchToWrite')
+      }
       tone={mode === 'write' ? 'mint' : 'cream'}
       size="compact"
       fullWidth={false}
@@ -200,14 +219,14 @@ export function CaptureScreen() {
                 loading={discardMutation.isPending}
                 onPress={() => discardMutation.mutate(state.draft)}
               >
-                やり直す
+                {t('capture.actions.startOver')}
               </Button>
               <Button
                 style={styles.actionButton}
                 loading={translateMutation.isPending}
                 onPress={() => translateMutation.mutate(state.draft)}
               >
-                Make cards
+                {t('capture.actions.makeCards')}
               </Button>
             </View>
           </>
@@ -225,9 +244,9 @@ export function CaptureScreen() {
               accentTone="mint"
               variant="canvas"
               canvasCornerColor={colors.border}
-              accessibilityLabel="今日の日本語を書く"
+              accessibilityLabel={t('capture.accessibility.writeInJapanese')}
               editable={!busy}
-              placeholder="今ふと考えていることをなんでも自由に日本語で話す・書く。"
+              placeholder={t('capture.writePlaceholder')}
               placeholderTextColor={colors.muted}
               autoFocus
               frameStyle={styles.draftInputFrame}
@@ -253,9 +272,11 @@ export function CaptureScreen() {
 
         {pendingDraft && state.phase === 'idle' && mode === 'write' ? (
           <Surface>
-            <AppText variant="subtitle">未完了の下書き</AppText>
+            <AppText variant="subtitle">{t('capture.unfinishedDraft')}</AppText>
             <AppText muted>{pendingDraft.entry.cleanText}</AppText>
-            <Button onPress={() => translateMutation.mutate(pendingDraft)}>Make cards</Button>
+            <Button onPress={() => translateMutation.mutate(pendingDraft)}>
+              {t('capture.actions.makeCards')}
+            </Button>
           </Surface>
         ) : null}
       </View>
@@ -286,7 +307,7 @@ export function CaptureScreen() {
       {state.phase === 'completed' ? (
         <View style={styles.buttonDock}>
           <Button kind="secondary" onPress={() => dispatch({ type: 'RESET' })}>
-            閉じる
+            {t('common.close')}
           </Button>
         </View>
       ) : shouldShowBottomPrimaryAction ? (
@@ -296,14 +317,20 @@ export function CaptureScreen() {
               state.phase === 'recording'
                 ? formatDuration(recorder.durationMillis)
                 : state.phase === 'transcribing'
-                  ? 'Transcribing'
+                  ? t('capture.actions.transcribing')
                   : state.phase === 'generating'
-                    ? 'Making cards'
+                    ? t('capture.actions.makingCards')
                     : mode === 'write'
-                      ? 'Split it'
-                      : 'Speak it'
+                      ? t('capture.actions.splitIt')
+                      : t('capture.actions.speakIt')
             }
-            accessibilityLabel={state.phase === 'recording' ? `録音を停止 ${formatDuration(recorder.durationMillis)}` : undefined}
+            accessibilityLabel={
+              state.phase === 'recording'
+                ? t('capture.accessibility.stopRecording', {
+                    duration: formatDuration(recorder.durationMillis),
+                  })
+                : undefined
+            }
             icon={
               state.phase === 'recording'
                 ? { ios: 'stop.circle.fill', android: 'stop_circle', web: 'stop_circle' }
@@ -361,20 +388,21 @@ function StarterCard({
   isWorking: boolean;
 }) {
   const colors = useDailyPalette();
+  const { t } = useTranslation();
   const title = isLoading
-    ? '今日のカードを確認中'
+    ? t('capture.starter.loading.title')
     : isRecording
-      ? 'そのまま話してみましょう'
+      ? t('capture.starter.recording.title')
       : isWorking
-        ? 'カードの準備中'
-        : '最初のカードを作ろう';
+        ? t('capture.starter.working.title')
+        : t('capture.starter.idle.title');
   const body = isLoading
-    ? '保存済みの英語カードを読み込んでいます。'
+    ? t('capture.starter.loading.body')
     : isRecording
-      ? '話し終えたら下のボタンで止めてください。話した内容から英語カードを作れます。'
+      ? t('capture.starter.recording.body')
       : isWorking
-        ? '話した内容を整理しています。少しだけ待ってください。'
-        : '下の Speak it を押して、今日考えていることをなんでも話してみましょう。短くても大丈夫です。';
+        ? t('capture.starter.working.body')
+        : t('capture.starter.idle.body');
 
   return (
     <View style={styles.starterCardArea}>

@@ -3,6 +3,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { normalizeWaveformPeaks } from '@just-speak-it/core';
 
 import { getLocalString, removeLocalValue, setLocalString } from '@/shared/storage/local-storage';
+import { i18n } from '@/shared/i18n';
 
 export type LocalRecordingRetention = 'persistent' | 'retry';
 export type LocalRecordingStatus = 'pending' | 'failed' | 'linked';
@@ -92,7 +93,7 @@ export async function saveLocalRecordingFromUri({
   const sourceFile = new File(recordingUri);
 
   if (!sourceFile.exists || sourceFile.size === 0) {
-    throw new Error('録音ファイルを保存できませんでした。');
+    throw new Error(i18n.t('errors.recordingSave'));
   }
 
   const recordingsDirectory = new Directory(Paths.document, DirectoryName);
@@ -195,7 +196,7 @@ export async function deleteAllLocalRecordings() {
   }
 
   writeIndex(failedRecordings);
-  throw new Error('一部の録音ファイルを削除できませんでした。');
+  throw new Error(i18n.t('errors.recordingDelete'));
 }
 
 function createRecordingFile(relativePath: string) {

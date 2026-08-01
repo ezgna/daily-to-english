@@ -8,14 +8,12 @@ import { AppText } from '@/shared/ui/app-text';
 
 export function SettingsSection({
   accentColor,
-  accentTextColor = SettingsColors.ink,
   badge,
   children,
   description,
   title,
 }: {
   accentColor: string;
-  accentTextColor?: string;
   badge?: string;
   children: ReactNode;
   description: string;
@@ -37,7 +35,7 @@ export function SettingsSection({
           <AppText
             maxFontSizeMultiplier={1.4}
             selectable={false}
-            style={[styles.title, { color: accentTextColor }]}
+            style={styles.title}
           >
             {title}
           </AppText>
@@ -54,7 +52,7 @@ export function SettingsSection({
             style={[
               styles.badge,
               {
-                backgroundColor: isDark ? palette.cardAlt : SettingsColors.cream,
+                backgroundColor: SettingsColors.cream,
                 borderColor: separatorColor,
               },
             ]}
@@ -63,7 +61,7 @@ export function SettingsSection({
               maxFontSizeMultiplier={1.4}
               numberOfLines={2}
               selectable
-              style={[styles.badgeText, { color: isDark ? palette.text : SettingsColors.ink }]}
+              style={styles.badgeText}
             >
               {badge}
             </AppText>
@@ -102,6 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
   },
   title: {
+    color: SettingsColors.ink,
     fontSize: 18,
     lineHeight: 24,
     fontWeight: '900',
@@ -121,6 +120,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.half,
   },
   badgeText: {
+    color: SettingsColors.ink,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '900',

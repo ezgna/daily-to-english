@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import { getLocalRecordingUriForEntry } from '@/features/recordings/recording-store';
 import { RecordingPlayButton } from '@/features/recordings/recording-play-button';
@@ -15,6 +16,7 @@ const TimecodeColors = ['#2FDD6C', '#65D7F2', '#FF9F45', '#9B7CFF'] as const;
 
 export function CardsScreen() {
   const colors = useDailyPalette();
+  const { i18n, t } = useTranslation();
   const groups = useCardGroups();
   const safeAreaInsets = useSafeAreaInsets();
 
@@ -33,7 +35,7 @@ export function CardsScreen() {
           ]}
         >
           {groups.isLoading ? (
-            <AppText muted>読み込み中</AppText>
+            <AppText muted>{t('common.loading')}</AppText>
           ) : (
             <View
               style={[
@@ -44,9 +46,11 @@ export function CardsScreen() {
                 },
               ]}
             >
-              <AppText style={[styles.emptyStateTitle, { color: colors.text }]}>フレーズはまだありません</AppText>
+              <AppText style={[styles.emptyStateTitle, { color: colors.text }]}>
+                {t('phrases.empty.title')}
+              </AppText>
               <AppText style={[styles.emptyStateBody, { color: colors.muted }]}>
-                ホームで話すか書くと、英語のフレーズがここに表示されます。
+                {t('phrases.empty.body')}
               </AppText>
             </View>
           )}
@@ -65,21 +69,21 @@ export function CardsScreen() {
         paddingRight: Math.max(safeAreaInsets.right, Spacing.three),
       }}
     >
-      {groups.isLoading ? <AppText muted>読み込み中</AppText> : null}
+      {groups.isLoading ? <AppText muted>{t('common.loading')}</AppText> : null}
       <View style={styles.memoList}>
         {groups.data?.map((group) => {
           const recordingUri = getLocalRecordingUriForEntry(group.entry.id);
           const sourceLabel =
             group.entry.source === 'voice'
               ? group.entry.isEdited
-                ? 'Voice · Edited'
-                : 'Voice'
-              : 'Text';
+                ? t('notes.source.edited', { source: t('notes.source.voice') })
+                : t('notes.source.voice')
+              : t('notes.source.text');
 
           return (
             <View key={group.generation.id} style={styles.memoGroup}>
               <EntrySeparator
-                dateLabel={formatDate(group.generation.createdAt)}
+                dateLabel={formatDate(group.generation.createdAt, i18n.resolvedLanguage)}
                 sourceLabel={sourceLabel}
                 sourceTone={group.entry.source}
               />
@@ -136,14 +140,14 @@ export function CardsScreen() {
   );
 }
 
-function formatDate(value: string) {
+function formatDate(value: string, language: string | undefined) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return new Intl.DateTimeFormat('ja-JP', {
+  return new Intl.DateTimeFormat(language ?? 'ja', {
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',

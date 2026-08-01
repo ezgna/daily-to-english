@@ -1,5 +1,6 @@
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { SettingsSection } from '@/features/settings/settings-section';
 import { SettingsColors } from '@/features/settings/settings-theme';
@@ -10,18 +11,14 @@ import { GlideOptionSurface } from '@/shared/legacy/ui/glide-option-surface';
 
 export type SettingsSelectorOption<T extends string> = {
   activeBackgroundColor: string;
-  activeCaptionColor?: string;
-  activeTextColor: string;
   caption?: string;
   icon: SymbolViewProps['name'];
   label: string;
-  selectedBorderColor?: string;
   value: T;
 };
 
 export function SettingsOptionSection<T extends string>({
   accentColor,
-  accentTextColor,
   currentValue,
   description,
   minOptionWidth,
@@ -31,7 +28,6 @@ export function SettingsOptionSection<T extends string>({
   title,
 }: {
   accentColor: string;
-  accentTextColor?: string;
   currentValue: T;
   description: string;
   minOptionWidth: number;
@@ -41,6 +37,7 @@ export function SettingsOptionSection<T extends string>({
   title: string;
 }) {
   const palette = useDailyPalette();
+  const { t } = useTranslation();
   const currentOption = options.find((option) => option.value === currentValue);
   const optionFoundationColor =
     palette.background === '#000000' ? SettingsColors.foundation : undefined;
@@ -48,7 +45,6 @@ export function SettingsOptionSection<T extends string>({
   return (
     <SettingsSection
       accentColor={accentColor}
-      accentTextColor={accentTextColor}
       badge={currentOption?.label}
       description={description}
       title={title}
@@ -60,16 +56,17 @@ export function SettingsOptionSection<T extends string>({
       >
         {options.map((option) => {
           const isSelected = option.value === currentValue;
-          const textColor = isSelected ? option.activeTextColor : SettingsColors.ink;
-          const captionColor = isSelected
-            ? option.activeCaptionColor ?? SettingsColors.mutedInk
-            : SettingsColors.mutedInk;
 
           return (
             <GlideOptionSurface
               key={option.value}
               accessibilityLabel={
-                option.caption ? `${option.label}、${option.caption}` : option.label
+                option.caption
+                  ? t('common.accessibility.optionWithCaption', {
+                      caption: option.caption,
+                      label: option.label,
+                    })
+                  : option.label
               }
               accessibilityRole="radio"
               accessibilityState={{ checked: isSelected }}
@@ -87,10 +84,6 @@ export function SettingsOptionSection<T extends string>({
                   backgroundColor: isSelected
                     ? option.activeBackgroundColor
                     : SettingsColors.paper,
-                  borderColor:
-                    isSelected && option.selectedBorderColor
-                      ? option.selectedBorderColor
-                      : SettingsColors.ink,
                 },
               ]}
             >
@@ -107,7 +100,7 @@ export function SettingsOptionSection<T extends string>({
                 <ThemedText
                   maxFontSizeMultiplier={1.4}
                   selectable={false}
-                  style={[styles.optionLabel, { color: textColor }]}
+                  style={styles.optionLabel}
                 >
                   {option.label}
                 </ThemedText>
@@ -115,7 +108,7 @@ export function SettingsOptionSection<T extends string>({
                   <ThemedText
                     maxFontSizeMultiplier={1.5}
                     selectable={false}
-                    style={[styles.optionCaption, { color: captionColor }]}
+                    style={styles.optionCaption}
                   >
                     {option.caption}
                   </ThemedText>
@@ -127,7 +120,6 @@ export function SettingsOptionSection<T extends string>({
                   styles.selectionMark,
                   {
                     backgroundColor: isSelected ? SettingsColors.cream : 'transparent',
-                    borderColor: isSelected ? SettingsColors.ink : textColor,
                   },
                 ]}
               >
@@ -167,6 +159,7 @@ const styles = StyleSheet.create({
   optionButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    borderColor: SettingsColors.ink,
   },
   iconBadge: {
     width: 40,
@@ -196,11 +189,13 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   optionLabel: {
+    color: SettingsColors.ink,
     fontSize: 17,
     lineHeight: 22,
     fontWeight: '900',
   },
   optionCaption: {
+    color: SettingsColors.ink,
     fontSize: 12,
     lineHeight: 17,
     fontWeight: '700',
@@ -213,6 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 999,
     borderWidth: 3,
+    borderColor: SettingsColors.ink,
   },
   checkFallback: {
     color: SettingsColors.ink,

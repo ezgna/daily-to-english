@@ -1,6 +1,7 @@
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useSettings } from '@/features/settings/settings-store';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
@@ -14,30 +15,27 @@ import type {
   NoteDisplayModeOption,
 } from './swift-ui-picker-variants.types';
 
-const DisplayModeOptions = [
-  { label: '原文', value: 'original' },
-  { label: '本文', value: 'plain' },
-  { label: '箇条書き', value: 'bullets' },
-] as const satisfies readonly NoteDisplayModeOption[];
-
-const PreviewContent = {
-  original:
-    'えーと、今日は帰り道に駅前でコーヒーを買いました。なんか、少し遠回りして帰りました。',
-  plain:
-    '今日は帰り道に駅前でコーヒーを買い、少し遠回りして帰りました。',
-  bullets: ['帰り道に駅前でコーヒーを買った', '少し遠回りして帰った'],
-} as const;
-
 export function ExperimentLabScreen() {
   const colors = useDailyPalette();
   const settings = useSettings();
+  const { t } = useTranslation();
   const [displayMode, setDisplayMode] = useState<NoteDisplayMode>('plain');
-  const selectedIndex = DisplayModeOptions.findIndex((option) => option.value === displayMode);
-  const selectedOption = DisplayModeOptions[selectedIndex];
-  const segmentLabels = DisplayModeOptions.map((option) => option.label);
+  const displayModeOptions = [
+    { label: t('notes.displayModes.original'), value: 'original' },
+    { label: t('notes.displayModes.plain'), value: 'plain' },
+    { label: t('notes.displayModes.bullets'), value: 'bullets' },
+  ] as const satisfies readonly NoteDisplayModeOption[];
+  const previewContent = {
+    original: t('lab.preview.original'),
+    plain: t('lab.preview.plain'),
+    bullets: t('lab.preview.bullets', { returnObjects: true }),
+  };
+  const selectedIndex = displayModeOptions.findIndex((option) => option.value === displayMode);
+  const selectedOption = displayModeOptions[selectedIndex];
+  const segmentLabels = displayModeOptions.map((option) => option.label);
 
   const handleSegmentChange = (nextIndex: number) => {
-    const nextMode = DisplayModeOptions[nextIndex]?.value;
+    const nextMode = displayModeOptions[nextIndex]?.value;
 
     if (nextMode) {
       setDisplayMode(nextMode);
@@ -121,7 +119,7 @@ export function ExperimentLabScreen() {
 
       <SwiftUIPickerVariants
         onChange={setDisplayMode}
-        options={DisplayModeOptions}
+        options={displayModeOptions}
         tintColor={colors.primary}
         value={displayMode}
       />
@@ -137,7 +135,7 @@ export function ExperimentLabScreen() {
       >
         <View style={styles.previewHeader}>
           <AppText style={{ color: colors.teal }} variant="caption">
-            7月31日 18:42
+            {t('lab.preview.date')}
           </AppText>
           <View style={[styles.modeBadge, { backgroundColor: colors.card }]}>
             <AppText style={{ color: colors.teal }} variant="caption">
@@ -148,7 +146,7 @@ export function ExperimentLabScreen() {
 
         {displayMode === 'bullets' ? (
           <View style={styles.bulletList}>
-            {PreviewContent.bullets.map((point) => (
+            {previewContent.bullets.map((point) => (
               <View key={point} style={styles.bulletRow}>
                 <AppText style={{ color: colors.teal }}>•</AppText>
                 <AppText style={styles.previewText}>{point}</AppText>
@@ -156,7 +154,7 @@ export function ExperimentLabScreen() {
             ))}
           </View>
         ) : (
-          <AppText style={styles.previewText}>{PreviewContent[displayMode]}</AppText>
+          <AppText style={styles.previewText}>{previewContent[displayMode]}</AppText>
         )}
       </View>
     </Screen>

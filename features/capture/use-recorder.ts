@@ -9,6 +9,8 @@ import { useEffect, useRef } from 'react';
 
 import { appendMeteringSample, createWaveformPeaksFromMetering } from '@just-speak-it/core';
 
+import { i18n } from '@/shared/i18n';
+
 const RecordingStatusIntervalMs = 100;
 const RecordingOptions = {
   ...RecordingPresets.HIGH_QUALITY,
@@ -32,7 +34,7 @@ export function useRecorder() {
     const permission = await AudioModule.requestRecordingPermissionsAsync();
 
     if (!permission.granted) {
-      throw new Error('マイク権限がないため録音できません。');
+      throw new Error(i18n.t('capture.errors.microphonePermission'));
     }
 
     samplesRef.current = [];
@@ -56,7 +58,7 @@ export function useRecorder() {
     const uri = recorder.uri ?? state.url;
 
     if (!uri) {
-      throw new Error('録音ファイルを読み込めませんでした。');
+      throw new Error(i18n.t('capture.errors.recordingUnavailable'));
     }
 
     return {

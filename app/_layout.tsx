@@ -3,10 +3,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
 
 import { SettingsProvider } from '@/features/settings/settings-store';
 import { ReviewOutboxSync } from '@/features/review/review-outbox-sync';
 import { queryClient } from '@/shared/api/query-client';
+import '@/shared/i18n';
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 
 export default function RootLayout() {
@@ -24,6 +26,7 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const colors = useDailyPalette();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -37,7 +40,7 @@ function RootNavigator() {
             headerShadowVisible: false,
             headerStyle: { backgroundColor: colors.background },
             headerTintColor: colors.text,
-            title: '実験室',
+            title: t('lab.title'),
           }}
         />
       </Stack>

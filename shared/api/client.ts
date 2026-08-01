@@ -11,6 +11,7 @@ import {
 import { File } from 'expo-file-system';
 
 import { ensureAnonymousSession, refreshAnonymousSession } from '@/shared/api/auth';
+import { i18n } from '@/shared/i18n';
 import { requireSupabaseClient, supabasePublishableKey, supabaseUrl } from '@/shared/supabase/client';
 
 export class ApiClientError extends Error {
@@ -29,7 +30,7 @@ export async function transcribeAudio(uri: string): Promise<TranscriptionRespons
   const recordingFile = new File(uri);
 
   if (!recordingFile.exists || recordingFile.size === 0) {
-    throw new Error('録音ファイルを読み込めませんでした。もう一度録音してください。');
+    throw new Error(i18n.t('errors.recordingRead'));
   }
 
   body.append('audio', recordingFile, recordingFile.name || 'daily-recording.m4a');
@@ -114,7 +115,7 @@ async function callApi(
     throw new ApiClientError(
       envelope?.error.code ?? 'request_failed',
       envelope?.error.message ?? `HTTP ${response.status}`,
-      envelope?.error.userMessage ?? '通信に失敗しました。',
+      envelope?.error.userMessage ?? i18n.t('errors.network'),
       response.status
     );
   }
@@ -139,7 +140,7 @@ async function sendApiRequest(
   }
 
   if (!supabaseUrl || !supabasePublishableKey || !token) {
-    throw new ApiClientError('not_configured', 'Supabaseに接続できません。');
+    throw new ApiClientError('not_configured', i18n.t('errors.supabaseConnection'));
   }
 
   const headers: Record<string, string> = {
@@ -170,5 +171,5 @@ export function formatApiError(error: unknown) {
     return error.message;
   }
 
-  return '処理に失敗しました。';
+  return i18n.t('errors.generic');
 }

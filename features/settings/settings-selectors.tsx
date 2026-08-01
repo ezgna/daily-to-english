@@ -1,4 +1,5 @@
 import type { SplitPolicy, TranslationStyle } from '@just-speak-it/contract';
+import { useTranslation } from 'react-i18next';
 
 import {
   SettingsOptionSection,
@@ -6,112 +7,134 @@ import {
 } from '@/features/settings/settings-option-section';
 import { useSettings, type ThemeScheme } from '@/features/settings/settings-store';
 import { SettingsColors } from '@/features/settings/settings-theme';
+import type { AppLanguage } from '@/shared/i18n';
 
-const ThemeOptions: SettingsSelectorOption<ThemeScheme>[] = [
-  {
-    value: 'light',
-    label: 'ライト',
-    icon: { ios: 'sun.max.fill', android: 'light_mode', web: 'light_mode' },
-    activeBackgroundColor: SettingsColors.lemon,
-    activeTextColor: SettingsColors.ink,
-  },
-  {
-    value: 'dark',
-    label: 'ダーク',
-    icon: { ios: 'moon.fill', android: 'dark_mode', web: 'dark_mode' },
-    activeBackgroundColor: SettingsColors.darkSurface,
-    activeTextColor: SettingsColors.white,
-    selectedBorderColor: SettingsColors.white,
-  },
-];
+export function LanguageSelector() {
+  const settings = useSettings();
+  const { t } = useTranslation();
+  const options: SettingsSelectorOption<AppLanguage>[] = [
+    {
+      value: 'ja',
+      label: t('settings.language.japanese'),
+      icon: { ios: 'character', android: 'translate', web: 'translate' },
+      activeBackgroundColor: SettingsColors.blue,
+    },
+    {
+      value: 'en',
+      label: t('settings.language.english'),
+      icon: { ios: 'textformat.abc', android: 'language', web: 'language' },
+      activeBackgroundColor: SettingsColors.mint,
+    },
+  ];
 
-const SplitPolicyOptions: SettingsSelectorOption<SplitPolicy>[] = [
-  {
-    value: 'meaning_unit',
-    label: '自然なまとまり',
-    caption: '話の流れを保って分ける',
-    icon: { ios: 'text.bubble.fill', android: 'chat_bubble', web: 'chat_bubble' },
-    activeBackgroundColor: SettingsColors.blue,
-    activeTextColor: SettingsColors.white,
-    activeCaptionColor: 'rgba(255, 255, 255, 0.82)',
-  },
-  {
-    value: 'small_steps',
-    label: '細かく分ける',
-    caption: '短いカードで少しずつ覚える',
-    icon: { ios: 'rectangle.split.2x1.fill', android: 'splitscreen', web: 'splitscreen' },
-    activeBackgroundColor: SettingsColors.orange,
-    activeTextColor: SettingsColors.ink,
-  },
-];
-
-const TranslationStyleOptions: SettingsSelectorOption<TranslationStyle>[] = [
-  {
-    value: 'native',
-    label: '自然さ優先',
-    caption: '英語らしい自然な表現にする',
-    icon: { ios: 'sparkles', android: 'auto_awesome', web: 'auto_awesome' },
-    activeBackgroundColor: SettingsColors.purple,
-    activeTextColor: SettingsColors.white,
-    activeCaptionColor: 'rgba(255, 255, 255, 0.82)',
-  },
-  {
-    value: 'simple',
-    label: '簡単さ優先',
-    caption: 'やさしい語彙と短い文にする',
-    icon: { ios: 'textformat.size', android: 'format_size', web: 'format_size' },
-    activeBackgroundColor: SettingsColors.mint,
-    activeTextColor: SettingsColors.ink,
-  },
-];
+  return (
+    <SettingsOptionSection
+      accentColor={SettingsColors.blue}
+      currentValue={settings.appLanguage}
+      description={t('settings.language.description')}
+      minOptionWidth={128}
+      onChange={settings.setAppLanguage}
+      options={options}
+      title={t('settings.language.title')}
+    />
+  );
+}
 
 export function ThemeSchemeSelector() {
   const settings = useSettings();
+  const { t } = useTranslation();
+  const options: SettingsSelectorOption<ThemeScheme>[] = [
+    {
+      value: 'light',
+      label: t('settings.appearance.light'),
+      icon: { ios: 'sun.max.fill', android: 'light_mode', web: 'light_mode' },
+      activeBackgroundColor: SettingsColors.lemon,
+    },
+    {
+      value: 'dark',
+      label: t('settings.appearance.dark'),
+      icon: { ios: 'moon.fill', android: 'dark_mode', web: 'dark_mode' },
+      activeBackgroundColor: SettingsColors.slate,
+    },
+  ];
 
   return (
     <SettingsOptionSection
       accentColor={SettingsColors.lemon}
       currentValue={settings.themeScheme}
-      description="アプリ全体の明るさを切り替えます。"
+      description={t('settings.appearance.description')}
       minOptionWidth={128}
       onChange={settings.setThemeScheme}
-      options={ThemeOptions}
-      title="見た目"
+      options={options}
+      title={t('settings.appearance.title')}
     />
   );
 }
 
 export function SplitPolicySelector() {
   const settings = useSettings();
+  const { t } = useTranslation();
+  const options: SettingsSelectorOption<SplitPolicy>[] = [
+    {
+      value: 'meaning_unit',
+      label: t('settings.cardSplit.meaningUnit.label'),
+      caption: t('settings.cardSplit.meaningUnit.caption'),
+      icon: { ios: 'text.bubble.fill', android: 'chat_bubble', web: 'chat_bubble' },
+      activeBackgroundColor: SettingsColors.blue,
+    },
+    {
+      value: 'small_steps',
+      label: t('settings.cardSplit.smallSteps.label'),
+      caption: t('settings.cardSplit.smallSteps.caption'),
+      icon: { ios: 'rectangle.split.2x1.fill', android: 'splitscreen', web: 'splitscreen' },
+      activeBackgroundColor: SettingsColors.orange,
+    },
+  ];
 
   return (
     <SettingsOptionSection
       accentColor={SettingsColors.orange}
       currentValue={settings.splitPolicy}
-      description="話した内容を、練習カードへ分ける粒度です。"
+      description={t('settings.cardSplit.description')}
       minOptionWidth={184}
       onChange={settings.setSplitPolicy}
-      options={SplitPolicyOptions}
+      options={options}
       stacked
-      title="カードの分け方"
+      title={t('settings.cardSplit.title')}
     />
   );
 }
 
 export function TranslationStyleSelector() {
   const settings = useSettings();
+  const { t } = useTranslation();
+  const options: SettingsSelectorOption<TranslationStyle>[] = [
+    {
+      value: 'native',
+      label: t('settings.translationStyle.native.label'),
+      caption: t('settings.translationStyle.native.caption'),
+      icon: { ios: 'sparkles', android: 'auto_awesome', web: 'auto_awesome' },
+      activeBackgroundColor: SettingsColors.purple,
+    },
+    {
+      value: 'simple',
+      label: t('settings.translationStyle.simple.label'),
+      caption: t('settings.translationStyle.simple.caption'),
+      icon: { ios: 'textformat.size', android: 'format_size', web: 'format_size' },
+      activeBackgroundColor: SettingsColors.mint,
+    },
+  ];
 
   return (
     <SettingsOptionSection
       accentColor={SettingsColors.purple}
-      accentTextColor={SettingsColors.white}
       currentValue={settings.translationStyle}
-      description="日本語から作る英語の方向性を選びます。"
+      description={t('settings.translationStyle.description')}
       minOptionWidth={184}
       onChange={settings.setTranslationStyle}
-      options={TranslationStyleOptions}
+      options={options}
       stacked
-      title="英語の仕上がり"
+      title={t('settings.translationStyle.title')}
     />
   );
 }

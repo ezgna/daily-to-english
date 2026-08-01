@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { Card } from '@just-speak-it/contract';
 
@@ -10,12 +11,13 @@ const RailColors = ['#2FDD6C', '#65D7F2', '#FF9F45', '#9B7CFF'] as const;
 
 export function DraftCardList({ cards }: { cards: Card[] }) {
   const colors = useDailyPalette();
+  const { t } = useTranslation();
   const visibleCards = cards.filter((card) => card.ja.trim().length > 0);
 
   return (
     <View style={styles.container}>
       <ScrollView
-        accessibilityLabel="作成された日本語カード"
+        accessibilityLabel={t('capture.accessibility.generatedJapaneseCards')}
         alwaysBounceVertical={false}
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}

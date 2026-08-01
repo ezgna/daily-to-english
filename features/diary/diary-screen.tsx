@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import {
-  DiaryDisplayModeOptions,
   DiaryEntryCard,
   type DiaryDisplayMode,
 } from '@/features/diary/diary-entry-card';
@@ -23,14 +23,22 @@ const DefaultDisplayMode: DiaryDisplayMode = 'plain';
 export function DiaryScreen() {
   const safeAreaInsets = useSafeAreaInsets();
   const palette = useDailyPalette();
+  const { t } = useTranslation();
   const entriesQuery = useDiaryEntries();
   const entries = entriesQuery.data ?? [];
-  const errorMessage = entriesQuery.error ? getErrorMessage(entriesQuery.error) : null;
+  const errorMessage = entriesQuery.error
+    ? getErrorMessage(entriesQuery.error, t('notes.errors.load'))
+    : null;
   const [displayMode, setDisplayMode] = useState<DiaryDisplayMode>(() => {
     const storedMode = getLocalString(DisplayModeStorageKey);
     return isDiaryDisplayMode(storedMode) ? storedMode : DefaultDisplayMode;
   });
   const [isWaveformScrubbing, setIsWaveformScrubbing] = useState(false);
+  const displayModeOptions: { label: string; value: DiaryDisplayMode }[] = [
+    { label: t('notes.displayModes.original'), value: 'original' },
+    { label: t('notes.displayModes.plain'), value: 'plain' },
+    { label: t('notes.displayModes.bullets'), value: 'bullets' },
+  ];
 
   const handleDisplayModeChange = useCallback((nextMode: DiaryDisplayMode) => {
     setDisplayMode(nextMode);
@@ -65,21 +73,21 @@ export function DiaryScreen() {
         <View style={[styles.centerState, emptyStateInsets]}>
           {entriesQuery.isLoading ? (
             <DiaryStateCard
-              body="保存済みのノートを読み込んでいます。"
+              body={t('notes.loading.body')}
               loading
-              title="ノートを読み込んでいます"
+              title={t('notes.loading.title')}
             />
           ) : errorMessage ? (
             <DiaryStateCard
               body={errorMessage}
               onRetry={refreshEntries}
               retrying={entriesQuery.isRefetching}
-              title="読み込めませんでした"
+              title={t('notes.errors.loadTitle')}
             />
           ) : (
             <DiaryStateCard
-              body="ホームで話すか書くと、あなたの言葉がここに積み重なります。"
-              title="ノートはまだありません"
+              body={t('notes.empty.body')}
+              title={t('notes.empty.title')}
             />
           )}
         </View>
@@ -92,10 +100,10 @@ export function DiaryScreen() {
       <View style={[styles.modeSwitchBand, modeSwitchInsets]}>
         <View style={styles.modeSwitchDock}>
           <SegmentedControl
-            accessibilityLabel="ノートの表示方法"
+            accessibilityLabel={t('notes.accessibility.displayMode')}
             haptics
             onChange={handleDisplayModeChange}
-            options={DiaryDisplayModeOptions}
+            options={displayModeOptions}
             testID="diary-display-mode-segmented-control"
             value={displayMode}
           />
@@ -152,6 +160,8 @@ function DiaryStateCard({
   retrying?: boolean;
   title: string;
 }) {
+  const { t } = useTranslation();
+
   return (
     <FoundationSurface
       containerStyle={styles.stateSurface}
@@ -177,7 +187,7 @@ function DiaryStateCard({
         <GlideButton
           busy={retrying}
           disabled={retrying}
-          label="再読み込み"
+          label={t('common.reload')}
           onPress={onRetry}
           size="medium"
           tone="mint"
@@ -196,11 +206,13 @@ function DiaryInlineError({
   onRetry: () => void;
   retrying: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.errorBanner}>
       <View style={styles.errorCopy}>
         <AppText maxFontSizeMultiplier={1.4} style={styles.errorTitle}>
-          更新できませんでした
+          {t('notes.errors.refreshTitle')}
         </AppText>
         <AppText maxFontSizeMultiplier={1.5} selectable style={styles.errorText}>
           {message}
@@ -210,7 +222,7 @@ function DiaryInlineError({
         busy={retrying}
         disabled={retrying}
         fullWidth={false}
-        label="再試行"
+        label={t('common.retry')}
         onPress={onRetry}
         size="compact"
         tone="coral"
@@ -223,8 +235,8 @@ function isDiaryDisplayMode(value: string | null): value is DiaryDisplayMode {
   return value === 'original' || value === 'plain' || value === 'bullets';
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'ノートを読み込めませんでした。';
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }
 
 const styles = StyleSheet.create({

@@ -8,6 +8,7 @@ import {
   type GestureResponderEvent,
   type LayoutChangeEvent,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { createDisplayWaveformPeaks } from '@just-speak-it/core';
 
@@ -34,6 +35,7 @@ export function DiaryWaveform({
   peaks: number[];
   recordingUri: string | null;
 }) {
+  const { t } = useTranslation();
   const visiblePeaks = createDisplayWaveformPeaks(peaks, 30);
   const waveformRef = useRef<View>(null);
   const scrubPreviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -181,7 +183,7 @@ export function DiaryWaveform({
     <Pressable
       ref={waveformRef}
       accessibilityRole="button"
-      accessibilityLabel="録音の再生位置を移動"
+      accessibilityLabel={t('notes.accessibility.seekRecording')}
       delayLongPress={260}
       hitSlop={8}
       onLayout={handleWaveformLayout}
@@ -203,13 +205,17 @@ export function DiaryWaveform({
 
   return (
     <View
-      accessibilityLabel={isPlayable ? undefined : '録音の音量波形'}
+      accessibilityLabel={isPlayable ? undefined : t('notes.accessibility.recordingWaveform')}
       accessible={!isPlayable}
       style={styles.waveform}
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={isPlaying ? '録音の再生を一時停止' : '録音を再生'}
+        accessibilityLabel={
+          isPlaying
+            ? t('notes.accessibility.pauseRecording')
+            : t('notes.accessibility.playRecording')
+        }
         accessibilityState={{ disabled: !isPlayable, selected: isPlaying }}
         disabled={!isPlayable}
         hitSlop={8}

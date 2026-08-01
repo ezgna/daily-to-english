@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { useDailyPalette } from '@/shared/legacy/just-speak-it-ui';
 import { Spacing } from '@/shared/legacy/theme';
@@ -21,6 +22,7 @@ export function SegmentedControl<T extends string>({
   onChange: (value: T) => void;
 }) {
   const colors = useDailyPalette();
+  const { t } = useTranslation();
 
   function handleChange(nextValue: T) {
     if (nextValue === value) {
@@ -46,8 +48,17 @@ export function SegmentedControl<T extends string>({
             key={option.value}
             accessibilityLabel={
               accessibilityLabel
-                ? `${accessibilityLabel}、${option.label}、${index + 1}/${options.length}`
-                : `${option.label}、${index + 1}/${options.length}`
+                ? t('common.accessibility.segmentedOptionWithGroup', {
+                    group: accessibilityLabel,
+                    option: option.label,
+                    position: index + 1,
+                    total: options.length,
+                  })
+                : t('common.accessibility.segmentedOption', {
+                    option: option.label,
+                    position: index + 1,
+                    total: options.length,
+                  })
             }
             accessibilityRole="tab"
             accessibilityState={{ selected }}

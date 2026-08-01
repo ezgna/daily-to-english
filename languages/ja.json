@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Just Speak It",
+    "NSMicrophoneUsageDescription": "音声入力のためにマイクを使用します。"
+  },
+  "android": {
+    "app_name": "Just Speak It"
+  }
+}

@@ -3,6 +3,7 @@ import 'react-native-url-polyfill/auto';
 import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
+import { i18n } from '@/shared/i18n';
 import { supabaseAuthStorage } from '@/shared/storage/local-storage';
 
 export const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -35,7 +36,7 @@ if (supabase) {
 
 export function requireSupabaseClient() {
   if (!supabase) {
-    throw new Error('Supabaseの公開URLとpublishable keyが未設定です。');
+    throw new Error(i18n.t('errors.supabaseConfig'));
   }
 
   return supabase;

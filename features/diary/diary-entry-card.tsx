@@ -1,4 +1,5 @@
 import { StyleSheet, View, type StyleProp, type TextStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import type { Entry } from '@just-speak-it/contract';
 
@@ -12,12 +13,6 @@ import { EntrySeparator } from '@/shared/ui/entry-separator';
 
 export type DiaryDisplayMode = 'original' | 'plain' | 'bullets';
 
-export const DiaryDisplayModeOptions: { label: string; value: DiaryDisplayMode }[] = [
-  { label: '原文', value: 'original' },
-  { label: '本文', value: 'plain' },
-  { label: '箇条書き', value: 'bullets' },
-];
-
 export function DiaryEntryCard({
   displayMode,
   entry,
@@ -27,12 +22,15 @@ export function DiaryEntryCard({
   entry: Entry;
   onWaveformScrubbingChange: (isScrubbing: boolean) => void;
 }) {
-  const sourceLabel = getEntrySourceLabel(entry);
+  const { i18n, t } = useTranslation();
+  const source = entry.source === 'voice' ? t('notes.source.voice') : t('notes.source.text');
+  const sourceLabel = entry.isEdited ? t('notes.source.edited', { source }) : source;
+  const noContentLabel = t('notes.noContent');
 
   return (
     <View style={styles.entry}>
       <EntrySeparator
-        dateLabel={formatEntryDate(entry.createdAt)}
+        dateLabel={formatEntryDate(entry.createdAt, i18n.resolvedLanguage)}
         sourceLabel={sourceLabel}
         sourceTone={entry.source}
       />
@@ -57,14 +55,14 @@ export function DiaryEntryCard({
         ) : null}
 
         {displayMode === 'bullets' ? (
-          <DiaryBulletList points={entry.summary} />
+          <DiaryBulletList emptyLabel={noContentLabel} points={entry.summary} />
         ) : (
           <ThemedText
             maxFontSizeMultiplier={1.5}
             selectable
             style={getDiaryBodyStyle(displayMode)}
           >
-            {getDiaryDisplayText(entry, displayMode)}
+            {getDiaryDisplayText(entry, displayMode, noContentLabel)}
           </ThemedText>
         )}
       </FoundationSurface>
@@ -72,8 +70,8 @@ export function DiaryEntryCard({
   );
 }
 
-function DiaryBulletList({ points }: { points: string[] }) {
-  const visiblePoints = points.length > 0 ? points : ['本文はありません。'];
+function DiaryBulletList({ emptyLabel, points }: { emptyLabel: string; points: string[] }) {
+  const visiblePoints = points.length > 0 ? points : [emptyLabel];
 
   return (
     <View style={styles.bulletList}>
@@ -87,7 +85,7 @@ function DiaryBulletList({ points }: { points: string[] }) {
             selectable
             style={styles.bulletText}
           >
-            {normalizeDisplayText(point)}
+            {normalizeDisplayText(point, emptyLabel)}
           </ThemedText>
         </View>
       ))}
@@ -103,15 +101,16 @@ function getDiaryBodyStyle(
 
 function getDiaryDisplayText(
   entry: Entry,
-  displayMode: Exclude<DiaryDisplayMode, 'bullets'>
+  displayMode: Exclude<DiaryDisplayMode, 'bullets'>,
+  emptyLabel: string
 ) {
   return displayMode === 'original'
-    ? normalizeDisplayText(entry.rawText)
-    : formatReadableDisplayText(entry.cleanText);
+    ? normalizeDisplayText(entry.rawText, emptyLabel)
+    : formatReadableDisplayText(entry.cleanText, emptyLabel);
 }
 
-function formatReadableDisplayText(value: string) {
-  return normalizeDisplayText(value)
+function formatReadableDisplayText(value: string, emptyLabel: string) {
+  return normalizeDisplayText(value, emptyLabel)
     .replace(/\s*\n+\s*/g, ' ')
     .replace(/([。！？!?]+[」』）)]*)\s*/g, '$1\n')
     .split('\n')
@@ -120,24 +119,19 @@ function formatReadableDisplayText(value: string) {
     .join('\n');
 }
 
-function normalizeDisplayText(value: string) {
+function normalizeDisplayText(value: string, emptyLabel: string) {
   const normalizedValue = value.replace(/\n{3,}/g, '\n\n').trim();
-  return normalizedValue || '本文はありません。';
+  return normalizedValue || emptyLabel;
 }
 
-function getEntrySourceLabel(entry: Entry) {
-  const source = entry.source === 'voice' ? 'Voice' : 'Text';
-  return entry.isEdited ? `${source} · Edited` : source;
-}
-
-function formatEntryDate(value: string) {
+function formatEntryDate(value: string, language: string | undefined) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return new Intl.DateTimeFormat('ja-JP', {
+  return new Intl.DateTimeFormat(language ?? 'ja', {
     month: 'numeric',
     day: 'numeric',
     weekday: 'short',

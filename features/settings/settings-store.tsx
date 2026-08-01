@@ -10,15 +10,23 @@ import {
   type TranslationStyle,
 } from '@just-speak-it/contract';
 
+import {
+  getInitialAppLanguage,
+  i18n,
+  saveAppLanguage,
+  type AppLanguage,
+} from '@/shared/i18n';
 import { getLocalString, setLocalString } from '@/shared/storage/local-storage';
 
 export type ThemeScheme = 'light' | 'dark';
 
 type SettingsValue = {
+  appLanguage: AppLanguage;
   themeScheme: ThemeScheme;
   splitPolicy: SplitPolicy;
   translationStyle: TranslationStyle;
   saveRecordings: boolean;
+  setAppLanguage: (value: AppLanguage) => void;
   setThemeScheme: (value: ThemeScheme) => void;
   setSplitPolicy: (value: SplitPolicy) => void;
   setTranslationStyle: (value: TranslationStyle) => void;
@@ -32,6 +40,7 @@ const ThemeSchemeStorageKey = 'just-speak-it:theme-scheme:v1';
 const SettingsContext = createContext<SettingsValue | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
+  const [appLanguage, setAppLanguageState] = useState<AppLanguage>(getInitialAppLanguage);
   const [themeScheme, setThemeSchemeState] = useState<ThemeScheme>(() => {
     const stored = getLocalString(ThemeSchemeStorageKey);
     return stored === 'light' || stored === 'dark'
@@ -56,6 +65,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     Appearance.setColorScheme(themeScheme);
   }, [themeScheme]);
 
+  const setAppLanguage = useCallback((value: AppLanguage) => {
+    setAppLanguageState(value);
+    saveAppLanguage(value);
+    void i18n.changeLanguage(value);
+  }, []);
+
   const setThemeScheme = useCallback((value: ThemeScheme) => {
     setThemeSchemeState(value);
     setLocalString(ThemeSchemeStorageKey, value);
@@ -78,20 +93,24 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      appLanguage,
       themeScheme,
       splitPolicy,
       translationStyle,
       saveRecordings,
+      setAppLanguage,
       setThemeScheme,
       setSplitPolicy,
       setTranslationStyle,
       setSaveRecordings,
     }),
     [
+      appLanguage,
       themeScheme,
       splitPolicy,
       translationStyle,
       saveRecordings,
+      setAppLanguage,
       setThemeScheme,
       setSplitPolicy,
       setTranslationStyle,

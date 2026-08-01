@@ -7,6 +7,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export function RecordingPlayButton({
   activeBackgroundColor = '#2FDD6C',
@@ -33,6 +34,7 @@ export function RecordingPlayButton({
   tintColor?: string;
   uri: string | null;
 }) {
+  const { t } = useTranslation();
   const source = useMemo(() => (uri ? { uri } : null), [uri]);
   const player = useAudioPlayer(source);
   const [playing, setPlaying] = useState(false);
@@ -73,7 +75,11 @@ export function RecordingPlayButton({
 
   return (
     <Pressable
-      accessibilityLabel={playing ? '録音再生を停止' : '録音を再生'}
+      accessibilityLabel={
+        playing
+          ? t('notes.accessibility.stopRecording')
+          : t('notes.accessibility.playRecording')
+      }
       accessibilityRole="button"
       onPress={toggle}
       style={({ pressed }) => [

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SettingsDeveloperSection } from '@/features/settings/settings-developer-section';
 import { LocalRecordingSettings } from '@/features/settings/local-recording-settings';
 import {
+  LanguageSelector,
   SplitPolicySelector,
   ThemeSchemeSelector,
   TranslationStyleSelector,
@@ -29,6 +30,7 @@ export function SettingsScreen() {
       style={[styles.screen, { backgroundColor: palette.background }]}
     >
       <View style={styles.container}>
+        <LanguageSelector />
         <SplitPolicySelector />
         <TranslationStyleSelector />
         <ThemeSchemeSelector />

@@ -17,5 +17,5 @@
     <text x="760" y="46">60d</text>
   </g>
   <!-- キャプション -->
-  <text x="60" y="316" font-size="32" font-weight="700" fill="#111111">"I said it" moves right · "Again" restarts at 1 day</text>
+  <text x="60" y="316" font-size="32" font-weight="700" fill="#111111">"Got it" moves right · "Again" restarts at 1 day</text>
 </svg>

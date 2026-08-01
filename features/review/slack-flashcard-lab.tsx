@@ -17,6 +17,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
 import type { Card, ReviewRating } from '@just-speak-it/contract';
 
@@ -99,6 +100,7 @@ export function SlackFlashcardLab({
 }: SlackFlashcardLabProps) {
   const { width, height } = useWindowDimensions();
   const palette = useDailyPalette();
+  const { t } = useTranslation();
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const promotionProgress = useSharedValue(0);
@@ -494,10 +496,10 @@ export function SlackFlashcardLab({
                 <SymbolView name="checkmark.circle.fill" size={42} tintColor={LabColors.mint} />
               </View>
               <ThemedText style={styles.doneTitle} selectable>
-                今日の復習は完了です
+                {t('review.done.title')}
               </ThemedText>
               <ThemedText style={styles.doneText} selectable>
-                次に復習日が来たカードから、この画面にまた出ます。
+                {t('review.done.body')}
               </ThemedText>
             </View>
           </View>
@@ -546,8 +548,8 @@ export function SlackFlashcardLab({
 
         <View style={styles.reviewFooter}>
           <View style={styles.actionBar}>
-            <DecisionButton disabled={disabled} label="もう一回" tone="keep" onPress={() => animateCardDecision('learning')} />
-            <DecisionButton disabled={disabled} label="言えた" tone="read" onPress={() => animateCardDecision('known')} />
+            <DecisionButton disabled={disabled} label={t('review.again')} tone="keep" onPress={() => animateCardDecision('learning')} />
+            <DecisionButton disabled={disabled} label={t('review.gotIt')} tone="read" onPress={() => animateCardDecision('known')} />
           </View>
           {footerAccessory ? <View style={styles.footerAccessory}>{footerAccessory}</View> : null}
         </View>
@@ -713,10 +715,12 @@ function LabHeader({
   rightAccessory?: ReactNode;
   undoDisabled: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.header}>
       <FoundationSurface
-        accessibilityLabel="直前の判定を取り消す"
+        accessibilityLabel={t('review.accessibility.undo')}
         accessibilityRole="button"
         accessibilityState={{ disabled: undoDisabled }}
         disabled={undoDisabled}
@@ -733,7 +737,7 @@ function LabHeader({
 
       <View pointerEvents="none" style={styles.headerCenter}>
         <ThemedText style={styles.leftCount} selectable>
-          残り {dueCount}
+          {t('review.remaining', { count: dueCount })}
         </ThemedText>
       </View>
 
@@ -755,10 +759,13 @@ const SlackCardFace = memo(function SlackCardFace({
   isPreview?: boolean;
   onToggleAnswer?: () => void;
 }) {
+  const { t } = useTranslation();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const speechPlaybackIdRef = useRef(0);
   const speechFallbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const flipAccessibilityLabel = isAnswerVisible ? '日本語を表示する' : '英語を表示する';
+  const flipAccessibilityLabel = isAnswerVisible
+    ? t('review.accessibility.showJapanese')
+    : t('review.accessibility.showEnglish');
   const cardBodyText = isAnswerVisible ? card.english : card.japanese;
   const answerBodyMaxLines = Math.max(
     4,
@@ -908,7 +915,7 @@ const SlackCardFace = memo(function SlackCardFace({
           {!isPreview && isAnswerVisible ? (
             <View pointerEvents="box-none" style={styles.answerSoundRow}>
               <Pressable
-                accessibilityLabel="英語を読み上げる"
+                accessibilityLabel={t('review.accessibility.speakEnglish')}
                 accessibilityRole="button"
                 hitSlop={8}
                 onPress={handleSpeakPress}
@@ -978,6 +985,7 @@ function DecisionOverlay({
   swipeOwnerCardId: SharedValue<string | null>;
   translateX: SharedValue<number>;
 }) {
+  const { t } = useTranslation();
   const overlaySurfaceStyle = useAnimatedStyle(() => {
     const x = swipeOwnerCardId.get() === cardId ? translateX.get() : 0;
     const absoluteX = Math.abs(x);
@@ -1030,7 +1038,7 @@ function DecisionOverlay({
         >
           <SymbolView name="arrow.counterclockwise" size={32} tintColor={LabColors.keepOverlay} />
         </DecisionProgressIcon>
-        <ThemedText style={styles.overlayText}>もう一回</ThemedText>
+        <ThemedText style={styles.overlayText}>{t('review.again')}</ThemedText>
       </Animated.View>
 
       <Animated.View style={[styles.overlayLabel, styles.readOverlayLabel, readLabelStyle]}>
@@ -1044,7 +1052,7 @@ function DecisionOverlay({
         >
           <SymbolView name="checkmark" size={36} tintColor={LabColors.readOverlay} />
         </DecisionProgressIcon>
-        <ThemedText style={styles.overlayText}>言えた</ThemedText>
+        <ThemedText style={styles.overlayText}>{t('review.gotIt')}</ThemedText>
       </Animated.View>
     </View>
   );

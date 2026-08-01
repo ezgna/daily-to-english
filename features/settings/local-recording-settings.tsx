@@ -1,6 +1,7 @@
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import {
   deleteAllLocalRecordings,
@@ -18,9 +19,22 @@ import { GlideButton } from '@/shared/legacy/ui/glide-button';
 
 export function LocalRecordingSettings() {
   const settings = useSettings();
+  const { t } = useTranslation();
   const [stats, setStats] = useState<LocalRecordingStats>(getLocalRecordingStats);
   const [isDeleting, setIsDeleting] = useState(false);
-  const formattedStats = formatRecordingStats(stats);
+  const countLabel = t(
+    stats.count === 1
+      ? 'settings.recordings.stats.count_one'
+      : 'settings.recordings.stats.count_other',
+    { count: stats.count }
+  );
+  const formattedStats =
+    stats.count === 0
+      ? countLabel
+      : t('settings.recordings.stats.withSize', {
+          countLabel,
+          size: formatBytes(stats.sizeBytes, settings.appLanguage),
+        });
 
   useEffect(() => {
     setStats(getLocalRecordingStats());
@@ -28,16 +42,19 @@ export function LocalRecordingSettings() {
   }, []);
 
   function handleDeletePress() {
-    Alert.alert('保存済み録音を削除', '端末に保存された録音ファイルをすべて削除します。', [
-      { text: 'キャンセル', style: 'cancel' },
+    Alert.alert(t('settings.recordings.delete.confirmTitle'), t('settings.recordings.delete.confirmBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: '削除',
+        text: t('common.delete'),
         style: 'destructive',
         onPress: () => {
           setIsDeleting(true);
           void deleteAllLocalRecordings()
             .catch(() => {
-              Alert.alert('削除できませんでした', '一部の録音ファイルが端末に残っています。');
+              Alert.alert(
+                t('settings.recordings.delete.errorTitle'),
+                t('settings.recordings.delete.errorBody')
+              );
             })
             .finally(() => setIsDeleting(false));
         },
@@ -49,8 +66,8 @@ export function LocalRecordingSettings() {
     <SettingsSection
       accentColor={SettingsColors.mint}
       badge={formattedStats}
-      description="元の音声を端末に残すか、保存済みデータを管理します。"
-      title="録音とデータ"
+      description={t('settings.recordings.description')}
+      title={t('settings.recordings.title')}
     >
       <View style={styles.panel}>
         <FoundationSurface
@@ -77,19 +94,19 @@ export function LocalRecordingSettings() {
               selectable
               style={styles.toggleLabel}
             >
-              端末に残す
+              {t('settings.recordings.keep.label')}
             </ThemedText>
             <ThemedText
               maxFontSizeMultiplier={1.5}
               selectable
               style={styles.toggleCaption}
             >
-              カードから元の音声を再生できます。
+              {t('settings.recordings.keep.caption')}
             </ThemedText>
           </View>
           <Switch
-            accessibilityHint="カードから元の音声を再生できるようにします"
-            accessibilityLabel="録音を端末に保存"
+            accessibilityHint={t('settings.recordings.accessibility.saveHint')}
+            accessibilityLabel={t('settings.recordings.accessibility.saveLabel')}
             ios_backgroundColor="#D8D0C1"
             onValueChange={settings.setSaveRecordings}
             thumbColor={SettingsColors.cream}
@@ -99,12 +116,14 @@ export function LocalRecordingSettings() {
         </FoundationSurface>
 
         <GlideButton
-          accessibilityLabel={`保存済み録音をすべて削除、${formattedStats}`}
+          accessibilityLabel={t('settings.recordings.accessibility.deleteAll', {
+            stats: formattedStats,
+          })}
           badge={formattedStats}
           busy={isDeleting}
           disabled={stats.count === 0 || isDeleting}
           icon={{ ios: 'trash.fill', android: 'delete', web: 'delete' }}
-          label="保存済み録音を削除"
+          label={t('settings.recordings.delete.action')}
           onPress={handleDeletePress}
           size="medium"
           tone="coral"
@@ -114,20 +133,17 @@ export function LocalRecordingSettings() {
   );
 }
 
-function formatRecordingStats(stats: LocalRecordingStats) {
-  if (stats.count === 0) {
-    return '0件';
-  }
+function formatBytes(value: number, language: string) {
+  const wholeNumberFormatter = new Intl.NumberFormat(language, { maximumFractionDigits: 0 });
 
-  return `${stats.count}件 / ${formatBytes(stats.sizeBytes)}`;
-}
-
-function formatBytes(value: number) {
   if (value < 1024 * 1024) {
-    return `${Math.max(1, Math.round(value / 1024))}KB`;
+    return `${wholeNumberFormatter.format(Math.max(1, Math.round(value / 1024)))}KB`;
   }
 
-  return `${(value / 1024 / 1024).toFixed(1)}MB`;
+  return `${new Intl.NumberFormat(language, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(value / 1024 / 1024)}MB`;
 }
 
 const styles = StyleSheet.create({
