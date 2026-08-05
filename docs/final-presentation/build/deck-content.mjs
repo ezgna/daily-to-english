@@ -4,6 +4,8 @@ export const deckContent = [
     title: 'Just Speak It',
     subtitle: 'Turn your own words into English you can speak.',
     kicker: 'FINAL PROJECT · MOBILE APP',
+    detailedNotes: `タイトルの下にある英語は、「自分の言葉を、自分で話せる英語に変える」という意味です。Just Speak Itでは、教科書の例文を覚えるのではなく、自分が今日考えたことや経験したことを、そのまま英語の練習材料にします。今日は、なぜこのアプリを作ったのか、どのように使うのか、そして裏側でどう動いているのかを順番に説明します。`,
+    detailedEnglishNotes: `The line under the title means that the app turns your own words into English you can speak. Just Speak It does not start with textbook examples. It starts with something you thought about or experienced today. Your own life becomes your English practice. Today, I will explain why I made the app, how people use it, and how it works behind the screen.`,
     notes: `こんにちは。私の最終プロジェクトは、Just Speak Itです。自分が言いたいことを、話せる英語に変えるアプリです。\n\n[English]\nHello. My final project is Just Speak It. It turns what you want to say into English you can practice.\n\n[Sources]\n- README.md\n- docs/design/app-icon/app-icon-speak-card-v3.png`,
   },
   {
@@ -12,6 +14,8 @@ export const deckContent = [
     statement:
       'Learners can memorize useful sentences and still struggle to express their own day, opinions, and experiences.',
     tensions: ['What I study', 'What I want to say', 'How I keep practicing'],
+    detailedNotes: `このスライドは、英語学習で感じた3つの差を表しています。左は、教科書などで勉強する準備された例文です。役に立ちますが、自分の話したい内容と同じとは限りません。中央は、自分の一日、意見、経験など、本当に言いたいことです。右は、それを一度作って終わりにせず、あとで繰り返し練習することです。つまり問題は、英語を勉強していないことではなく、勉強した英語と自分の言葉がつながりにくいことです。`,
+    detailedEnglishNotes: `This slide shows three parts of the problem. On the left are prepared examples from textbooks. They are useful, but they are not always personal. In the middle are the things I really want to say, such as my day, my opinions, and my experiences. On the right is the need to practice those words again later. The problem is not that learners do not study. The problem is that the English they study is often separate from their own life.`,
     notes: `英語の例文を覚えても、自分の一日や気持ちを英語で言うのは難しいです。このアプリは、その差を小さくするために作りました。\n\n[English]\nEven if we study English sentences, it can be hard to talk about our own day or feelings. I made this app to make that easier.\n\n[Sources]\n- README.md\n- docs/redesign-proposal.md`,
   },
   {
@@ -24,6 +28,8 @@ export const deckContent = [
       'Review it again when it is due',
       'Keep the original thought as a personal note',
     ],
+    detailedNotes: `そこで利用者の流れを、このユーザーストーリーとして設計しました。まず、利用者は日本語で自分の一日や考えを話すか、文字で書きます。右側の3つが大切な条件です。1つ目は、最初から英語を書かなくても練習材料を作れること。2つ目は、覚えるのにちょうどよい時期にもう一度出てくること。3つ目は、元の日本語を自分のノートとして残せることです。この3つによって、英語の勉強を自分の生活につなげます。`,
+    detailedEnglishNotes: `To solve this problem, I used this user story to design the app. First, the user speaks or writes about their day in Japanese. The three points on the right are important. First, the user can make practice material without writing English. Second, the app brings the phrase back when it is time to review it. Third, the original Japanese thought stays as a personal note. These three points connect English practice to the user's real life.`,
     notes: `利用者は、まず日本語で自由に話すか書きます。英語を先に考えなくても、自分が本当に言いたいことを練習できます。\n\n[English]\nFirst, the user speaks or writes freely in Japanese. They do not need to think in English first. They can practice what they really want to say.\n\n[Sources]\n- README.md\n- docs/redesign-proposal.md`,
   },
   {
@@ -43,12 +49,16 @@ export const deckContent = [
       'I went to a café with a friend after class.',
       'We talked about a new project.',
     ],
+    detailedNotes: `ここでは、1つの日本語が練習カードになるまでを、番号に沿って説明します。1番で日本語を話すか書きます。2番で音声を文字にして、読みやすく整えます。3番で、話しやすい短い内容に分けます。4番で自然な英語にします。5番でフレーズとノートとして保存し、6番で間隔を空けながら復習します。下の例では、1つの長い日本語を、実際に口に出しやすい2つの英語文に分けています。`,
+    detailedEnglishNotes: `This slide shows how one Japanese thought becomes practice cards. In step one, the user speaks or writes in Japanese. In step two, the app turns the audio into text and cleans the text. In step three, it divides the message into short ideas that are easy to say. In step four, it translates them into natural English. In step five, it saves them as phrases and notes. In step six, the user reviews them over time. At the bottom, one long Japanese sentence becomes two short English sentences.`,
     notes: `日本語で話した内容を、アプリが短く分けて英語にします。作った文は保存されるので、あとで何度も練習できます。\n\n[English]\nThe app divides the Japanese message into short parts and changes it into English. The sentences are saved, so the user can practice them again later.\n\n[Sources]\n- README.md\n- features/capture/capture-screen.tsx\n- docs/redesign-proposal.md`,
   },
   {
     number: 5,
     title: 'The main flow stays focused from capture to cards',
     stages: ['CAPTURE', 'GENERATE', 'PRACTICE'],
+    detailedNotes: `実際の画面を左から順に見ていきます。最初の画面でSpeak itを押し、次の画面で日本語を話します。話し終えると、3つ目の画面で内容を整理してカードを作ります。完成した日本語と英語の組み合わせは、4つ目のPhrases画面に保存されます。このように、操作の中心は、話す、作る、練習するという3段階だけです。`,
+    detailedEnglishNotes: `Now, look at the four screens from left to right. On the first screen, the user taps Speak it. On the second screen, the user speaks in Japanese. After the user stops, the third screen shows that the app is making the cards. The finished Japanese and English phrases appear on the fourth screen. The main flow has only three parts: capture the idea, generate the cards, and practice them.`,
     notes: `使い方は簡単です。日本語で話す、カードができる、英語で練習する。この3つが中心です。\n\n[English]\nThe flow is simple. Speak in Japanese, make cards, and practice in English. These are the three main steps.\n\n[Sources]\n- features/capture/capture-screen.tsx\n- features/capture/draft-card-list.tsx`,
   },
   {
@@ -60,6 +70,8 @@ export const deckContent = [
       { label: 'PHRASES', description: 'Browse saved Japanese–English cards' },
       { label: 'CUSTOM', description: 'Choose how cards are created and stored' },
     ],
+    detailedNotes: `アプリには4つの主な場所があります。Homeでは、日本語を話すか書いてカードを作り、復習するカードがあればそのまま練習できます。左の1つ目のNotesでは、元の日本語、整えた文章、箇条書きを見返せます。2つ目のPhrasesでは、保存された日本語と英語のカードを確認できます。3つ目のSettingsでは、カードを細かく分けるか、英語を自然にするか簡単にするかなど、自分に合う作り方を選べます。`,
+    detailedEnglishNotes: `The app has four main areas. On Home, users speak or write in Japanese, make cards, and review cards that are due. In Notes, they can see the original Japanese, the cleaned text, and a short bullet-point version. In Phrases, they can see the saved Japanese and English cards. In Settings, they can choose how the app divides their ideas and what kind of English it creates. For example, they can choose natural English or simple English.`,
     notes: `Homeで話してカードを作ります。Notesで元の内容を見返し、Phrasesで英語表現を確認します。Settingsでは、カードの作り方や見た目を選べます。\n\n[English]\nOn Home, users speak and make cards. In Notes, they can see the original message. In Phrases, they can check the English. In Settings, they can choose how the cards look and work.\n\n[Sources]\n- app/(tabs)/_layout.tsx\n- features/diary/diary-screen.tsx\n- features/cards/cards-screen.tsx\n- features/settings/settings-screen.tsx`,
   },
   {
@@ -70,6 +82,8 @@ export const deckContent = [
       { label: 'Got it', english: 'Got it', description: 'Increase the review interval' },
     ],
     support: ['Undo accidental decisions', 'Queue results locally until synchronized'],
+    detailedNotes: `復習では、最初に日本語を見て、英語で言ってみます。言えた場合は緑のGot it、難しかった場合は赤のAgainを選びます。右側にあるように、Againを押すと、そのフレーズは早めにもう一度出ます。Got itを押すと、下のグラフの3日、7日、14日、30日、60日のように、少しずつ復習の間隔が長くなります。押し間違えたときはUndoが使え、通信がないときも結果を端末に残して、あとで同期できます。`,
+    detailedEnglishNotes: `During review, the user first sees the Japanese phrase and tries to say it in English. If the user can say it, they tap the green Got it button. If it is difficult, they tap the red Again button. Again brings the phrase back sooner. Got it makes the review time longer, as shown by the 3, 7, 14, 30, and 60 day bars. Undo fixes an accidental tap. If the internet is not available, the app keeps the result on the phone and sends it later.`,
     notes: `練習では、言えなければAgain、言えたらGot itを押します。選ぶのはこの2つだけなので、短い時間でも続けやすいです。\n\n[English]\nDuring practice, tap Again if you cannot say it. Tap Got it if you can. There are only two choices, so practice is quick and easy.\n\n[Sources]\n- features/review/slack-flashcard-lab.tsx\n- features/review/review-deck.tsx\n- shared/api/review-outbox.ts\n- packages/core/src/srs.ts`,
   },
   {
@@ -82,6 +96,8 @@ export const deckContent = [
       'PostgreSQL stores entries, cards, reviews, and usage events',
     ],
     privacy: 'Original audio is not persisted in cloud storage. Optional copies stay on device.',
+    detailedNotes: `この図は、アプリの裏側を左から右に表しています。左のExpoアプリで音声や文字を受け取ります。中央上のSupabase Edge Functionが、利用者を確認し、送られた内容を安全に処理します。右のOpenAI APIが、音声の文字起こし、文章の整理、分割、英訳を行います。作られたノート、カード、復習結果は、中央下のPostgreSQLに保存します。ただし元の音声はクラウドには保存せず、保存を選んだ場合だけ端末に残します。AIは処理を助けますが、製品の中心は自分の言葉を繰り返し練習する流れです。`,
+    detailedEnglishNotes: `This diagram moves from left to right. The Expo app on the left receives the user's voice or text. The Supabase Edge Function in the middle checks who the user is and handles the request safely. The OpenAI API on the right turns speech into text, cleans the text, divides it into short ideas, and translates it. PostgreSQL stores the notes, cards, and review results. The original audio is not saved in the cloud. It stays on the phone only if the user chooses to save it. AI helps with the process, but the main product is the practice loop.`,
     notes: `アプリの裏側では、話した内容をAIが整理して、英語カードにします。結果は自分の記録として保存されます。元の音声はインターネット上には保存しません。\n\n[English]\nBehind the app, AI organizes what the user said and makes English cards. The result is saved in the user's account. The original audio is not saved online.\n\n[Sources]\n- docs/architecture/just-speak-it-low-level-overview.png\n- docs/architecture/README.md\n- supabase/functions/api/index.ts\n- supabase/migrations/20260731043000_rebuild_schema_v3.sql`,
   },
   {
@@ -94,6 +110,8 @@ export const deckContent = [
       ['Review events + outbox', 'Decisions and undo survive temporary failures'],
       ['RLS + API gateway', 'Each user sees only their own data'],
     ],
+    detailedNotes: `ここでは、アプリを安心して使うための6つの工夫を示しています。State Machineは、録音中やカード作成中などの状態を分かりやすく管理します。Zod Contractsは、アプリとAPIが同じ形式のデータを使うためのルールです。TanStack Queryは、各画面に同じ最新データを表示します。Idempotencyは、通信をやり直しても同じAI処理やカードを重ねて作らない仕組みです。Local Outboxは、通信が切れても復習結果やUndoを端末に残します。最後のRLSは、利用者が自分のデータだけを見られるようにします。`,
+    detailedEnglishNotes: `This slide shows six ways the app stays reliable. The State Machine keeps track of states such as recording and making cards. Zod Contracts check that the app and the API use the same data format. TanStack Query keeps the data on each screen up to date. Idempotency stops the app from doing the same AI work twice after a retry. The Local Outbox keeps review results and Undo actions when the connection fails, and sends them later. RLS makes sure each user can only see their own data.`,
     notes: `安心して使えるように、通信が途切れても、練習結果をあとから送れるようにしました。同じカードが何度も作られないことや、ほかの人の記録が見えないことも大切にしています。\n\n[English]\nThe app can save practice results even if the internet stops for a short time. It also avoids making the same card twice and keeps each user's data private.\n\n[Sources]\n- features/capture/capture-state.ts\n- packages/contract/src/index.ts\n- shared/api/client.ts\n- shared/api/review-outbox.ts\n- supabase/functions/api/index.ts\n- supabase/migrations/20260731043000_rebuild_schema_v3.sql`,
   },
   {
@@ -105,6 +123,8 @@ export const deckContent = [
       'Open a card and review it',
     ],
     closing: 'Your life becomes your English practice.',
+    detailedNotes: `ここから実際の操作を見せます。スライドの3つの順番で進めます。まず、Homeで短い日本語を話します。次に、話した内容が整理され、英語カードになるところを見せます。最後に、そのカードを開いて、英語で言えるかを確認し、Got itかAgainを選びます。このデモで、自分の日常の言葉が、そのまま英語の練習になる流れを見てください。`,
+    detailedEnglishNotes: `Now I will show the app. I will follow the three steps on this slide. First, I will say a short thought in Japanese on the Home screen. Next, we will watch the app turn it into English cards. Finally, I will open one card, try to say the English answer, and choose Got it or Again. This demo shows how a small part of daily life can become English practice.`,
     notes: `ここから、実際にアプリを使います。日本語で短く話して、英語カードができるところと、そのカードを練習するところを見せます。\n\n[English]\nNow I will show you the app. I will speak a short sentence in Japanese, make English cards, and practice one card.\n\n[Sources]\n- README.md\n- features/capture/capture-screen.tsx\n- features/review/review-deck.tsx`,
   },
   {
@@ -112,12 +132,16 @@ export const deckContent = [
     appendix: true,
     title: 'The core flow, end to end',
     stages: ['Speak', 'Transcribe', 'Generate English cards', 'Review'],
+    detailedNotes: `もし実機デモがうまく動かない場合は、このスライドで同じ流れを説明できます。左から順に、1番で話し始め、2番で音声を文字にします。3番で内容を整理してカードを作り、4番で完成したカードを確認します。最後の5番で日本語を見ながら英語を答え、結果を選びます。つまり、入力から復習までが1つの流れとしてつながっています。`,
+    detailedEnglishNotes: `If the live demo has a problem, this slide shows the same flow. From left to right, step one is speaking. Step two turns the audio into text. Step three organizes the message and makes the cards. Step four shows the finished cards. In step five, the user looks at the Japanese, says the English answer, and chooses a result. The full path from input to review is connected in one flow.`,
     notes: `これは、最初から最後までの流れを1枚にまとめたものです。話す、英語カードを作る、練習する、という流れです。\n\n[English]\nThis slide shows the full flow. Speak, make English cards, and practice them.\n\n[Sources]\n- features/capture/capture-screen.tsx\n- features/capture/draft-card-list.tsx\n- features/cards/cards-screen.tsx\n- features/review/review-deck.tsx`,
   },
   {
     number: 12,
     appendix: true,
     title: 'How requests move through the system',
+    detailedNotes: `この詳しい図は、左の端末、中央のSupabase、右のOpenAIという3つの場所に分かれています。書き込みの流れでは、アプリからAPIクライアントを通り、Supabaseでログイン情報とデータ形式を確認します。そのあと、OpenAIの文字起こしと文章生成を使い、結果をPostgreSQLへ保存します。読み込みはPostgRESTとRLSを通るので、自分のデータだけを取得します。復習やUndoもEdge Functionで処理します。音声ファイルはデータベースやクラウドストレージには保存せず、設定した場合だけ端末内に残します。`,
+    detailedEnglishNotes: `This detailed diagram has three areas: the phone on the left, Supabase in the middle, and OpenAI on the right. For writing data, the app sends a request through the API client. Supabase checks the login information and the data format. Then it uses OpenAI to turn audio into text and to create the English cards. The results are saved in PostgreSQL. For reading data, PostgREST and RLS make sure the user only gets their own information. Review and Undo actions also go through the Edge Function. Audio files are not saved in the database or cloud storage. They stay on the phone only when the user turns that option on.`,
     notes: `この図は、スマホから送った内容が、英語カードとして戻るまでの流れです。必要な情報だけを安全に処理し、カードと練習の記録を保存します。\n\n[English]\nThis diagram shows how information moves through the app. It safely processes the message, then saves the cards and practice results.\n\n[Sources]\n- docs/architecture/just-speak-it-low-level-overview.png\n- docs/architecture/README.md`,
   },
 ];

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="620" viewBox="0 0 1440 620" role="img" aria-labelledby="title description">
+  <title id="title">Just Speak It</title>
+  <desc id="description">Turn your own words into English you can speak.</desc>
+  <rect x="8" y="8" width="1424" height="604" rx="48" fill="#FFF9EE" stroke="#111111" stroke-width="8"/>
+
+  <g opacity="0.55" fill="none" stroke="#111111" stroke-width="6">
+    <path d="M 76 90 H 236"/>
+    <path d="M 1204 524 H 1364"/>
+  </g>
+  <circle cx="94" cy="516" r="20" fill="#9B7CFF" stroke="#111111" stroke-width="6"/>
+  <circle cx="1348" cy="102" r="20" fill="#65D7F2" stroke="#111111" stroke-width="6"/>
+
+  <g transform="translate(96 87) scale(0.82)">
+    <path d="M 136 80 H 376 Q 440 80 440 144 V 336 Q 440 400 376 400 H 226 L 172 468 L 162 400 H 136 Q 72 400 72 336 V 144 Q 72 80 136 80 Z"
+          transform="translate(16 20)" fill="#111111"/>
+    <path d="M 136 80 H 376 Q 440 80 440 144 V 336 Q 440 400 376 400 H 226 L 172 468 L 162 400 H 136 Q 72 400 72 336 V 144 Q 72 80 136 80 Z"
+          fill="#FFFFFF" stroke="#111111" stroke-width="12" stroke-linejoin="round"/>
+    <g fill="#2FDD6C" stroke="#111111" stroke-width="8">
+      <rect x="122" y="205" width="36" height="70" rx="18"/>
+      <rect x="180" y="175" width="36" height="130" rx="18"/>
+      <rect x="238" y="145" width="36" height="190" rx="18"/>
+      <rect x="296" y="175" width="36" height="130" rx="18"/>
+      <rect x="354" y="205" width="36" height="70" rx="18"/>
+    </g>
+  </g>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" fill="#111111">
+    <g transform="translate(566 88)">
+      <rect x="8" y="10" width="438" height="58" rx="29" fill="#111111"/>
+      <rect width="438" height="58" rx="29" fill="#65D7F2" stroke="#111111" stroke-width="5"/>
+      <text x="219" y="38" text-anchor="middle" font-size="21" font-weight="800" letter-spacing="2.2">PERSONAL ENGLISH PRACTICE</text>
+    </g>
+
+    <text x="566" y="260" font-size="96" font-weight="900" letter-spacing="-4">Just Speak It</text>
+    <text x="570" y="320" font-size="34" font-weight="750">Turn your own words into English you can speak.</text>
+    <text x="570" y="364" font-size="25" font-weight="600" fill="#5F6672">Your day. Your thoughts. Your practice.</text>
+
+    <g transform="translate(566 430)" font-size="24" font-weight="850">
+      <g>
+        <rect x="7" y="9" width="176" height="72" rx="18" fill="#111111"/>
+        <rect width="176" height="72" rx="18" fill="#2FDD6C" stroke="#111111" stroke-width="5"/>
+        <text x="88" y="46" text-anchor="middle">SPEAK</text>
+      </g>
+      <path d="M 201 36 H 245" stroke="#111111" stroke-width="7"/>
+      <path d="M 239 25 L 252 36 L 239 47" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <g transform="translate(270)">
+        <rect x="7" y="9" width="176" height="72" rx="18" fill="#111111"/>
+        <rect width="176" height="72" rx="18" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+        <text x="88" y="46" text-anchor="middle">CREATE</text>
+      </g>
+      <path d="M 471 36 H 515" stroke="#111111" stroke-width="7"/>
+      <path d="M 509 25 L 522 36 L 509 47" fill="none" stroke="#111111" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <g transform="translate(540)">
+        <rect x="7" y="9" width="196" height="72" rx="18" fill="#111111"/>
+        <rect width="196" height="72" rx="18" fill="#FFE36E" stroke="#111111" stroke-width="5"/>
+        <text x="98" y="46" text-anchor="middle">PRACTICE</text>
+      </g>
+    </g>
+  </g>
+</svg>
