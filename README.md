@@ -85,57 +85,6 @@ See the [architecture documentation](docs/architecture/README.md) for the low-le
 
 This repository uses npm workspaces. Pure domain logic such as SRS lives in `packages/core`, while schemas shared by the app and API live in `packages/contract`.
 
-## Getting started
-
-### Prerequisites
-
-- Node.js 22.13.x or newer ([minimum for Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/))
-- npm
-- Supabase CLI
-- An Expo development environment for iOS or Android
-- A Supabase project and OpenAI API key
-
-### 1. Install
-
-```bash
-npm install
-```
-
-### 2. Configure the app
-
-Create `.env.local` in the repository root.
-
-```bash
-EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-Set `OPENAI_API_KEY` for the Supabase Edge Function. You can optionally override the models with `OPENAI_TEXT_MODEL` and `OPENAI_STT_MODEL`.
-
-If you use your own Supabase project, enable anonymous sign-ins in Supabase Auth.
-
-### 3. Create a development build
-
-```bash
-npm run ios
-# or
-npm run android
-```
-
-This app contains a custom native module, so development on a device or simulator requires a development build. After the first build, start Metro normally.
-
-```bash
-npm run start
-```
-
-### Static checks
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-```
-
 ## Database & API
 
 App inserts, updates, and deletes go through the `api` Edge Function. Regular client access is primarily limited to reads.
